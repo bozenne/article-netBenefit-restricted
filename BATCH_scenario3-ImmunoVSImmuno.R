@@ -123,7 +123,6 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         HR1C <- 0.05
         HR1T <- 0.05
       
-        TpsFin <- iTime
         HazC <- 0.05
         HazT <- 0.05
       

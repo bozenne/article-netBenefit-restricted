@@ -122,7 +122,6 @@ for(iSim in 1:n.sim){
 
         ## ** Generate data
         HR1 <- 0.05
-        TpsFin <- iTime
         HazC <- 0.05
         HazT2 <- 0.05*(0.75+0.25*HR1)
         HazT3 <- 0.05*(0.5+0.5*HR1)
