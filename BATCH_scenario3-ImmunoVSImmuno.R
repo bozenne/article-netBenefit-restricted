@@ -78,8 +78,8 @@ require(FHtest) ## install.packages("FHtest")
 n.sim <- 500
 
 Tps.inclusion <- 12 
-Restriction.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
-Threshold_list <- c(0,6,12) ## 0,6,12
+Restriction.time_list <- c(3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
+Threshold_list <- c(0,6,12,18) ## 0,6,12
 TpsFin <- 60
 
 grid <- expand.grid(restrictionTime = Restriction.time_list,
@@ -120,12 +120,12 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         iScenario <- grid$scenario[iGrid]
 
         ## ** Generate data
-        HR1C <- 0.1
-        HR1T <- 0.1
+        HR1C <- 0.05
+        HR1T <- 0.05
       
         TpsFin <- iTime
-        HazC <- 0.1
-        HazT <- 0.07
+        HazC <- 0.05
+        HazT <- 0.05
       
         HazT2T <- HazT*(0.75+0.25*HR1T)
         HazT3T <- HazT*(0.5+0.5*HR1T)
@@ -137,10 +137,10 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         HazT4C <- HazC*(0.25+0.75*HR1C)
         HazT5C <- HazC*(HR1C)
       
-        t1 <- 3
-        t2 <- 12
-        t3 <- 17.75
-        t4 <- 24
+        t1 <- 6
+        t2 <- 18
+        t3 <- 24
+        t4 <- 36
         
         t1C <- 12
         t2C <- 24
