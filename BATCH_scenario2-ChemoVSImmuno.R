@@ -78,7 +78,7 @@ require(FHtest)
 n.sim <- 500
 
 Tps.inclusion <- 12 
-Restriction.time_list <- c(3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
+Restriction.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
 Threshold_list <- c(0,6,12,18) ## 0,6,12
 TpsFin <- 60
 
@@ -123,6 +123,7 @@ for(iSim in 1:n.sim){
         ## ** Generate data
         HR1 <- 0.05
         HazC <- 0.05
+	TpsFin <- iTime
         HazT2 <- 0.05*(0.75+0.25*HR1)
         HazT3 <- 0.05*(0.5+0.5*HR1)
         HazT4 <- 0.05*(0.25+0.75*HR1)
