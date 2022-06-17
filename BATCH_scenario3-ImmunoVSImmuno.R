@@ -80,7 +80,6 @@ n.sim <- 500
 Tps.inclusion <- 12 
 Restriction.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
 Threshold_list <- c(0,6,12,18) ## 0,6,12
-TpsFin <- 60
 
 grid <- expand.grid(restrictionTime = Restriction.time_list,
                     threshold = Threshold_list,
@@ -178,7 +177,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                                                   t4+TimeEvent.Tr5))))
         
         TimeEvent <- c(TimeEvent.Tr,TimeEvent.Ctr)
-        Time.Cens <- runif(n,48,TpsFin)
+        Time.Cens <- runif(n,TpsFin-Tps.inclusion,TpsFin) ## varier temps de censure
         Time <- pmin(Time.Cens,TimeEvent)
         Event <- Time==TimeEvent
         Event <- as.numeric(Event)
