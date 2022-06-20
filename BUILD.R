@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: apr  7 2022 (11:10) 
 ## Version: 
-## Last-Updated: jun  1 2022 (19:41) 
+## Last-Updated: jun 20 2022 (09:34) 
 ##           By: Brice Ozenne
-##     Update #: 45
+##     Update #: 48
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -18,7 +18,9 @@
 library(data.table)
 
 if(system("whoami",intern=TRUE)=="unicph\\hpl802"){  
-    setwd("x:/GPC/article-restricted/")
+    setwd("x:/GPC/article-restricted/")    
+}else if(system("whoami",intern=TRUE)=="hpl802"){
+    ## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
 }else{
     setwd("C:/Users/max/Desktop/simulation_peron/simulation-article-restricted")
 }
@@ -162,10 +164,10 @@ dtS.sc4 <- dt.sc4[, .(rep = .N, censure = mean(censure),
                       ), by = c("scenario","threshold","rtime") ]
 
 ## * export
-## saverds(dt.sc1, file = "Results/sim-ChemoVSChemo.rds")
-## saveRDS(dt.sc2, file = "Results/sim-ChemoVSImmuno.rds")
-## saveRDS(dt.sc3, file = "Results/sim-ImmunoVSImmuno.rds")
-## saveRDS(dt.sc4, file = "Results/sim-type1.rds")
+saveRDS(dt.sc1, file = "Results/sim-ChemoVSChemo.rds")
+saveRDS(dt.sc2, file = "Results/sim-ChemoVSImmuno.rds")
+saveRDS(dt.sc3, file = "Results/sim-ImmunoVSImmuno.rds")
+saveRDS(dt.sc4, file = "Results/sim-type1.rds")
 
 saveRDS(dtS.sc1, file = "Results/simSummary-ChemoVSChemo.rds")
 saveRDS(dtS.sc2, file = "Results/simSummary-ChemoVSImmuno.rds")

@@ -72,7 +72,7 @@ if(dir.exists(path.output)==FALSE){
 require(survival)
 require(BuyseTest) ## install.packages("BuyseTest")
 require(survRM2) ## install.packages("survRM2")
-require(FHtest) ## install.packages("FHtest")
+suppressMessages(require(FHtest)) ## install.packages("FHtest")
 
 ## * Settings
 n.sim <- 500
@@ -111,7 +111,7 @@ grid <- rbind(grid,
 res <- NULL
 for(iSim in 1:n.sim){ ## iSim <- 1
     cat(iSim,": ")
-    for (iGrid in 1:NROW(grid)){ 
+    for (iGrid in 1:NROW(grid)){ ## iGrid <- 1 
         cat("*")
 
         iThreshold <- grid$threshold[iGrid]

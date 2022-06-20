@@ -15,7 +15,7 @@ R CMD BATCH --vanilla BATCH_type1_error.R output/type1_error/R-$SLURM_JOB_NAME-$
 ## clean results      ## rm -r ./Results/type1_error/*
 ## submission command ## sbatch SUBM_type1_error.slurm
 
-## submission output  ## Submitted batch job 1468759 (time using C-c t: onsdag 22-06-01 at 12:08) 
+## submission output  ## Submitted batch job 1512452 (time using C-c t: fredag 22-06-17 at 18:22) 
 
 ## init               ## module module load gcc/11.2.0 R/4.1.2
                       ## cat .bash_profile (in the root directory on the server to visualize the current configuration)

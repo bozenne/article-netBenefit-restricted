@@ -4,13 +4,13 @@
 ## setwd(path)
 ## source("BATCH_scenario1.R")
 ## ** slurm
-## cd ucph/hdir/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/
+## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
 ## sbatch -a 1-1 -J 'scenario1-ChemoVSChemo' --output=/dev/null --error=/dev/null R CMD BATCH --vanilla BATCH_scenario1-ChemoVSChemo.R /dev/null 
 ## ** BATCH
-## cd ucph/hdir/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/
+## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
 ## R CMD BATCH --vanilla '--args iter_sim=1 n.iter_sim=10' BATCH_scenario1-ChemoVSChemo.R output/scenario1-ChemoVSChemo/R-ChemoVSChemo-1.Rout &
 ## ** BATCH loop
-## cd ucph/hdir/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/
+## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
 ## for ITER in `seq 1 10`;
 ## do
 ## eval 'R CMD BATCH --vanilla "--args iter_sim='$ITER' n.iter_sim=10" BATCH_scenario1-ChemoVSChemo.R output/scenario1-ChemoVSChemo/R-ChemoVSChemo-'$ITER'.Rout &'
@@ -61,7 +61,7 @@ if(dir.exists(path.output)==FALSE){
 require(survival)
 require(BuyseTest) ## install.packages("BuyseTest")
 require(survRM2) ## install.packages("survRM2")
-require(FHtest)
+suppressMessages(require(FHtest))
 
 ## * Settings
 n.sim <- 500
@@ -100,9 +100,9 @@ grid <- rbind(grid,
 
 ## * Loop
 res <- NULL
-for(iSim in 1:n.sim){
+for(iSim in 1:n.sim){ ## iSim <- 1
     cat(iSim,": ")
-    for (iGrid in 1:NROW(grid)){ ## Restriction.time <- 12
+    for (iGrid in 1:NROW(grid)){ ## iGrid <- 1
         cat("*")
         iThreshold <- grid$threshold[iGrid]
         iTime <- grid$restrictionTime[iGrid]
