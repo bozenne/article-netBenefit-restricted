@@ -79,7 +79,7 @@ n.sim <- 500
 
 Tps.inclusion <- 12 
 Restriction.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
-Threshold_list <- c(0,6,12,18) ## 0,6,12
+Threshold_list <- c(0,6,12,18,24) ## 0,6,12
 
 grid <- expand.grid(restrictionTime = Restriction.time_list,
                     threshold = Threshold_list,
@@ -119,32 +119,30 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         iScenario <- grid$scenario[iGrid]
 
         ## ** Generate data
-        HR1C <- 0.05
-        HR1T <- 0.05
-	TpsFin <- iTime
+      	TpsFin <- iTime
       
-        HazC <- 0.05
-        HazT <- 0.05
+        HazC <- 0.18
+        HazT <- 0.18
       
-        HazT2T <- HazT*(0.75+0.25*HR1T)
-        HazT3T <- HazT*(0.5+0.5*HR1T)
-        HazT4T <- HazT*(0.25+0.75*HR1T)
-        HazT5T <- HazT*(HR1T)
+        HazT2T <- HazT*0.6
+        HazT3T <- HazT*0.3
+        HazT4T <- HazT*0.08
+        HazT5T <- HazT*0.02
       
-        HazT2C <- HazC*(0.75+0.25*HR1C)
-        HazT3C <- HazC*(0.5+0.5*HR1C)
-        HazT4C <- HazC*(0.25+0.75*HR1C)
-        HazT5C <- HazC*(HR1C)
+        HazT2C <- HazC*0.6
+        HazT3C <- HazC*0.5
+        HazT4C <- HazC*0.45
+        HazT5C <- HazC*0.1
       
-        t1 <- 6
-        t2 <- 18
-        t3 <- 24
-        t4 <- 36
+        t1 <- 3
+        t2 <- 6
+        t3 <- 9
+        t4 <- 12
         
-        t1C <- 12
-        t2C <- 24
-        t3C <- 36
-        t4C <- 48
+        t1C <- 3
+        t2C <- 6
+        t3C <- 9
+        t4C <- 12
         
         n.Treatment <- 200
         n.Control <- 200
