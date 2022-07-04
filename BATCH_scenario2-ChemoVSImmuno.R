@@ -79,7 +79,7 @@ n.sim <- 500
 
 Tps.inclusion <- 12 
 Restriction.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
-Threshold_list <- c(0,6,12,18) ## 0,6,12
+Threshold_list <- c(0,6,12,18,24) ## 0,6,12
 TpsFin <- 60
 
 grid <- expand.grid(restrictionTime = Restriction.time_list,
@@ -121,17 +121,16 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         iScenario <- grid$scenario[iGrid]
 
         ## ** Generate data
-        HR1 <- 0.05
-        HazC <- 0.05
+        HazC <- 0.1
 	TpsFin <- iTime
-        HazT2 <- 0.05*(0.75+0.25*HR1)
-        HazT3 <- 0.05*(0.5+0.5*HR1)
-        HazT4 <- 0.05*(0.25+0.75*HR1)
-        HazT5 <- 0.05*(HR1)
-        t1 <- 18
-        t2 <- 24
-        t3 <- 36
-        t4 <- 48
+        HazT2 <- HazC*0.95
+        HazT3 <- HazC*0.90
+        HazT4 <- HazC*0.65
+        HazT5 <- HazC*0.1
+        t1 <- 1
+        t2 <- 3
+        t3 <- 9
+        t4 <- 24
         n.Treatment <- 200
         n.Control <- 200
         n <- n.Treatment+n.Control
@@ -163,7 +162,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         pval.LR <- 1 - pchisq(LR$chisq, 1) 
         Taux.cens.reel <- 1-mean(Event)
   
-        ## ** Analysis using RNBGehan
+        ## ** Analysis using NBGehan
         NBGehan <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold),
                               method.inference = "u-statistic", scoring.rule = "Gehan", trace = 0)
         NBGehan.confint <- confint(NBGehan)
