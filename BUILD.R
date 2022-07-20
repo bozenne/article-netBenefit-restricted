@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: apr  7 2022 (11:10) 
 ## Version: 
-## Last-Updated: jun 20 2022 (09:34) 
+## Last-Updated: jul 20 2022 (09:44) 
 ##           By: Brice Ozenne
-##     Update #: 48
+##     Update #: 54
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -68,14 +68,20 @@ setnames(dt.sc1, new = "threshold", old = "Threshold")
 setnames(dt.sc1, new = "rtime", old = "Restriction_time")
 
 dtS.sc1 <- dt.sc1[, .(rep = .N, censure = mean(censure),
-                      power.logrank = mean(pval.LOGRANK<=0.05),
-                      power.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
-                      power.rmstDiff = mean(pval.RMSTdif<=0.05),
-                      power.rmstRatio = mean(pval.RMSTratio<=0.05),
-                      power.nbGehan = mean(pval.NBGehan<=0.05),
+                      power5.logrank = mean(pval.LOGRANK<=0.05),
+                      power1.logrank = mean(pval.LOGRANK<=0.01),
+                      power5.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
+                      power1.wlogrank = mean(pval.WeightedLOGRANK<=0.01, na.rm = TRUE),
+                      power5.rmstDiff = mean(pval.RMSTdif<=0.05),
+                      power1.rmstDiff = mean(pval.RMSTdif<=0.01),
+                      power5.rmstRatio = mean(pval.RMSTratio<=0.05),
+                      power1.rmstRatio = mean(pval.RMSTratio<=0.01),
+                      power5.nbGehan = mean(pval.NBGehan<=0.05),
+                      power1.nbGehan = mean(pval.NBGehan<=0.01),
                       estimate.nbGehan = mean(estimate.NBGehan),
                       coverage.nbGehan = mean((lower.NBGehan <= mean(estimate.NBGehan))*(mean(upper.NBGehan) <= estimate.NBGehan)),
-                      power.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power5.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power1.rnbPeron = mean(pval.RNBPeron<=0.01),
                       estimate.rnbPeron = mean(estimate.RNBPeron),
                       coverage.nbPeron = mean((lower.RNBPeron <= mean(estimate.RNBPeron))*(mean(estimate.RNBPeron) <= upper.RNBPeron))
                       ), by = c("scenario","threshold","rtime") ]
@@ -96,14 +102,20 @@ setnames(dt.sc2, new = "rtime", old = "Restriction_time")
 
 
 dtS.sc2 <- dt.sc2[, .(rep = .N, censure = mean(censure),
-                      power.logrank = mean(pval.LOGRANK<=0.05),
-                      power.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
-                      power.rmstDiff = mean(pval.RMSTdif<=0.05),
-                      power.rmstRatio = mean(pval.RMSTratio<=0.05),
-                      power.nbGehan = mean(pval.NBGehan<=0.05),
+                      power5.logrank = mean(pval.LOGRANK<=0.05),
+                      power1.logrank = mean(pval.LOGRANK<=0.01),
+                      power5.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
+                      power1.wlogrank = mean(pval.WeightedLOGRANK<=0.01, na.rm = TRUE),
+                      power5.rmstDiff = mean(pval.RMSTdif<=0.05),
+                      power1.rmstDiff = mean(pval.RMSTdif<=0.01),
+                      power5.rmstRatio = mean(pval.RMSTratio<=0.05),
+                      power1.rmstRatio = mean(pval.RMSTratio<=0.01),
+                      power5.nbGehan = mean(pval.NBGehan<=0.05),
+                      power1.nbGehan = mean(pval.NBGehan<=0.01),
                       estimate.nbGehan = mean(estimate.NBGehan),
                       coverage.nbGehan = mean((lower.NBGehan <= mean(estimate.NBGehan))*(mean(upper.NBGehan) <= estimate.NBGehan)),
-                      power.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power5.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power1.rnbPeron = mean(pval.RNBPeron<=0.01),
                       estimate.rnbPeron = mean(estimate.RNBPeron),
                       coverage.nbPeron = mean((lower.RNBPeron <= mean(estimate.RNBPeron))*(mean(estimate.RNBPeron) <= upper.RNBPeron))
                       ), by = c("scenario","threshold","rtime") ]
@@ -123,14 +135,20 @@ setnames(dt.sc3, new = "threshold", old = "Threshold")
 setnames(dt.sc3, new = "rtime", old = "Restriction_time")
 
 dtS.sc3 <- dt.sc3[, .(rep = .N, censure = mean(censure),
-                      power.logrank = mean(pval.LOGRANK<=0.05),
-                      power.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
-                      power.rmstDiff = mean(pval.RMSTdif<=0.05),
-                      power.rmstRatio = mean(pval.RMSTratio<=0.05),
-                      power.nbGehan = mean(pval.NBGehan<=0.05),
+                      power5.logrank = mean(pval.LOGRANK<=0.05),
+                      power1.logrank = mean(pval.LOGRANK<=0.01),
+                      power5.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
+                      power1.wlogrank = mean(pval.WeightedLOGRANK<=0.01, na.rm = TRUE),
+                      power5.rmstDiff = mean(pval.RMSTdif<=0.05),
+                      power1.rmstDiff = mean(pval.RMSTdif<=0.01),
+                      power5.rmstRatio = mean(pval.RMSTratio<=0.05),
+                      power1.rmstRatio = mean(pval.RMSTratio<=0.01),
+                      power5.nbGehan = mean(pval.NBGehan<=0.05),
+                      power1.nbGehan = mean(pval.NBGehan<=0.01),
                       estimate.nbGehan = mean(estimate.NBGehan),
                       coverage.nbGehan = mean((lower.NBGehan <= mean(estimate.NBGehan))*(mean(upper.NBGehan) <= estimate.NBGehan)),
-                      power.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power5.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power1.rnbPeron = mean(pval.RNBPeron<=0.01),
                       estimate.rnbPeron = mean(estimate.RNBPeron),
                       coverage.nbPeron = mean((lower.RNBPeron <= mean(estimate.RNBPeron))*(mean(estimate.RNBPeron) <= upper.RNBPeron))
                       ),
@@ -151,14 +169,20 @@ setnames(dt.sc4, new = "threshold", old = "Threshold")
 setnames(dt.sc4, new = "rtime", old = "Restriction_time")
 
 dtS.sc4 <- dt.sc4[, .(rep = .N, censure = mean(censure),
-                      power.logrank = mean(pval.LOGRANK<=0.05),
-                      power.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
-                      power.rmstDiff = mean(pval.RMSTdif<=0.05),
-                      power.rmstRatio = mean(pval.RMSTratio<=0.05),
-                      power.nbGehan = mean(pval.NBGehan<=0.05),
+                      power5.logrank = mean(pval.LOGRANK<=0.05),
+                      power1.logrank = mean(pval.LOGRANK<=0.01),
+                      power5.wlogrank = mean(pval.WeightedLOGRANK<=0.05, na.rm = TRUE),
+                      power1.wlogrank = mean(pval.WeightedLOGRANK<=0.01, na.rm = TRUE),
+                      power5.rmstDiff = mean(pval.RMSTdif<=0.05),
+                      power1.rmstDiff = mean(pval.RMSTdif<=0.01),
+                      power5.rmstRatio = mean(pval.RMSTratio<=0.05),
+                      power1.rmstRatio = mean(pval.RMSTratio<=0.01),
+                      power5.nbGehan = mean(pval.NBGehan<=0.05),
+                      power1.nbGehan = mean(pval.NBGehan<=0.01),
                       estimate.nbGehan = mean(estimate.NBGehan),
                       coverage.nbGehan = mean((lower.NBGehan <= 0)*(0 <= estimate.NBGehan)),
-                      power.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power5.rnbPeron = mean(pval.RNBPeron<=0.05),
+                      power1.rnbPeron = mean(pval.RNBPeron<=0.01),
                       estimate.rnbPeron = mean(estimate.RNBPeron),
                       coverage.nbPeron = mean((lower.RNBPeron <= 0)*(0 <= upper.RNBPeron))
                       ), by = c("scenario","threshold","rtime") ]
