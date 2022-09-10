@@ -135,7 +135,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         ## ** Analysis using NBPeron
         NBPeron <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold),
                               method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
-        NBPeron.confint <- confint(NBGehan)
+        NBPeron.confint <- confint(NBPeron)
         
         ## ** Analysis using RMST
         RMST <- rmst2(time=Time, status=Event, arm=group, tau = NULL, covariates = NULL, alpha = 0.05)
