@@ -186,10 +186,10 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         pval.LR <- 1 - pchisq(LR$chisq, 1) 
         Taux.cens.reel <- 1-mean(Event)
   
-        ## ** analysis using RNBGehan
-        NBGehan <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold),
-                              method.inference = "u-statistic", scoring.rule = "Gehan", trace = 0)
-        NBGehan.confint <- confint(NBGehan)
+        ## ** analysis using RNBPeron
+        NBPeron <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold),
+                              method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
+        NBPeron.confint <- confint(NBPeron)
 
         ## ** Analysis using RMST
         RMST <- rmst2(time=Time, status=Event, arm=group, tau = NULL, covariates = NULL, alpha = 0.05)
@@ -215,11 +215,11 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                            scenario = iScenario,
                            Threshold = iThreshold,
                            "Taux censure reel" = Taux.cens.reel,
-                           estimate.NBGehan = NBGehan.confint[,"estimate"],
-                           se.NBGehan = NBGehan.confint[,"se"],
-                           lower.NBGehan = NBGehan.confint[,"lower.ci"],
-                           upper.NBGehan = NBGehan.confint[,"upper.ci"],
-                           pval.NBGehan = NBGehan.confint[,"p.value"],
+                           estimate.NBPeron = NBPeron.confint[,"estimate"],
+                           se.NBPeron = NBPeron.confint[,"se"],
+                           lower.NBPeron = NBPeron.confint[,"lower.ci"],
+                           upper.NBPeron = NBPeron.confint[,"upper.ci"],
+                           pval.NBPeron = NBPeron.confint[,"p.value"],
                            estimate.RNBPeron = RNBPeron.confint[,"estimate"],
                            se.RNBPeron = RNBPeron.confint[,"se"],
                            lower.RNBPeron = RNBPeron.confint[,"lower.ci"],
