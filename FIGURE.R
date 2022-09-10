@@ -34,7 +34,7 @@ relabel.estimator <- c("logrank" = "Log-rank test",
                        "wlogrank" = "Weighted log-rank test",
                        "rmstDiff" = "Difference in RMST",
                        "rmstRatio" = "Ratio of RMST",
-                       "nbGehan" = "Net benefit \n (Gehan scoring rule)",
+                       "nbPeron" = "Net benefit \n (Peron scoring rule)",
                        "rnbPeron" = "Restricted net benefit \n (Peron scoring rule)")
 
 type.power <- "power5."
@@ -246,7 +246,7 @@ ggPower3.bis <- ggPower3.bis + theme(text = element_text(size=15),
 range(dtS.sc4$power5.logrank)
 range(dtS.sc4$power5.wlogrank)
 range(dtS.sc4$power5.rmstDiff)
-range(dtS.sc4$power5.nbGehan)
+range(dtS.sc4$power5.nbPeron)
 range(dtS.sc4$power5.rnbPeron)
 
 ggType1 <- ggplot(dtS.sc4[scenario==0], aes_string(x = "rtime", y = paste0(type.power,"rnbPeron")))
