@@ -210,7 +210,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         NBPeron.confint <- confint(NBPeron)
 	    
 	## ** Analysis using NBPeron + toxicity
-    	NBPeronTox <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent),
+    	NBPeronTox <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent, operator = "<0"),
                          method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
     	NBPeron.confintTox <- confint(NBPeronTox)
 
