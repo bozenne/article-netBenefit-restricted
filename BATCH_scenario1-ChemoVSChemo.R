@@ -90,6 +90,15 @@ grid <- rbind(grid,
               cbind(restrictionTime = Restriction.time_list,
                   threshold = 0.2*Restriction.time_list,
                     scenario = 3))
+grid <- rbind(grid,
+              cbind(restrictionTime = Restriction.time_list,
+                    threshold = 0.3*Restriction.time_list,
+                    scenario = 5))
+
+grid <- rbind(grid,
+              cbind(restrictionTime = Restriction.time_list,
+                  threshold = 0.4*Restriction.time_list,
+                    scenario = 6))
 
 ## pour obtenir la valeur exacte du net benefit sans censure
 grid <- rbind(grid,
@@ -112,19 +121,29 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         TpsFin <- iTime
         HazC <- 0.085
         HazT <- 0.0595
+        
+    #Tox
+    ptoxC <- 0.3
+    ptoxT <- 0.3
+        
         n.Treatment <- 200
         n.Control <- 200
         n <- n.Treatment+n.Control
         group <- c(rep(1, n.Treatment),rep(0, n.Control))
         TimeEvent.Ctr <- rexp(n.Control,HazC)
         TimeEvent.Tr <- rexp(n.Control,HazT)
+        
+        Toxevent.Ctr <- rbinom(n.Control,1,ptoxC)
+    Toxevent.Tr <- rbinom(n.Treatment,1,ptoxT)
   
         TimeEvent <- c(TimeEvent.Tr,TimeEvent.Ctr)
+        Toxevent <- c(Toxevent.Tr,Toxevent.Ctr)
+        
         Time.Cens <- runif(n,TpsFin-Tps.inclusion,TpsFin) #varier temps de censure
         Time <- pmin(Time.Cens,TimeEvent)
         Event <- Time==TimeEvent
         Event <- as.numeric(Event)
-        tab <- data.frame(group,Time,Event)
+        tab <- data.frame(group,Time,Event, Toxevent)
         Taux.cens.reel <- 1-mean(Event)
   
         ## ** Analysis using LR
@@ -136,6 +155,11 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         NBPeron <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold),
                               method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
         NBPeron.confint <- confint(NBPeron)
+        
+        ## ** Analysis using NBPeron + toxicity
+        NBPeronTox <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold)+ B(Toxevent),
+                              method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
+        NBPeronTox.confint <- confint(NBPeronTox)
         
         ## ** Analysis using RMST
         RMST <- rmst2(time=Time, status=Event, arm=group, tau = NULL, covariates = NULL, alpha = 0.05)
@@ -166,6 +190,11 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                            lower.NBPeron = NBPeron.confint[,"lower.ci"],
                            upper.NBPeron = NBPeron.confint[,"upper.ci"],
                            pval.NBPeron = NBPeron.confint[,"p.value"],
+                           estimate.NBPeronTox = NBPeronTox.confint[,"estimate"],
+                           se.NBPeronTox = NBPeronTox.confint[,"se"],
+                           lower.NBPeronTox = NBPeronTox.confint[,"lower.ci"],
+                           upper.NBPeronTox = NBPeronTox.confint[,"upper.ci"],
+                           pval.NBPeronTox = NBPeronTox.confint[,"p.value"],
                            estimate.RNBPeron = RNBPeron.confint[,"estimate"],
                            se.RNBPeron = RNBPeron.confint[,"se"],
                            lower.RNBPeron = RNBPeron.confint[,"lower.ci"],
