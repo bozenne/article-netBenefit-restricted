@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --job-name=scenario2-ChemoVSImmuno  # Job name
-#SBATCH --array=1-20     # Number of jobs
-#SBATCH --partition=long    # Queue. Use long for run time >8h and standard otherwise
+#SBATCH --array=1-100     # Number of jobs
+#SBATCH --partition=standard    # Queue. Use long for run time >8h and standard otherwise
 #SBATCH --mem=1G # Memory limit, e.g. reserve 1 GB memory 
 #SBATCH --output=output/scenario2-ChemoVSImmuno/slurm-%x-%a-%J.out # Direct output to subdirectory
 #SBATCH --error=output/scenario2-ChemoVSImmuno/slurm-%x-%a-%J.out # Same file for output and error
@@ -14,7 +14,7 @@ R CMD BATCH --vanilla BATCH_scenario2-ChemoVSImmuno.R output/scenario2-ChemoVSIm
 ## clean results      ## rm -r ./Results/scenario2-ChemoVSImmuno/*
 ## submission command ## sbatch SUBM_scenario2-ChemoVSImmuno.slurm
 
-## submission output  ## Submitted batch job 1624820 (time using C-c t: tirsdag 22-07-05 at 15:09) 
+## submission output  ## Submitted batch job 1960971 (time using C-c t: mandag 22-09-19 at 11:34) 
 
 ## init               ## module module load gcc/11.2.0 R/4.1.2
                       ## cat .bash_profile (in the root directory on the server to visualize the current configuration)

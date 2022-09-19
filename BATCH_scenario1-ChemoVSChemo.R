@@ -2,7 +2,7 @@
 ## ** interactive
 ## path <- "h:/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/"
 ## setwd(path)
-## source("BATCH_scenario1.R")
+## source("BATCH_scenario1-ChemoVSChemo.R")
 ## ** slurm
 ## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
 ## sbatch -a 1-1 -J 'scenario1-ChemoVSChemo' --output=/dev/null --error=/dev/null R CMD BATCH --vanilla BATCH_scenario1-ChemoVSChemo.R /dev/null 
@@ -64,7 +64,7 @@ require(survRM2) ## install.packages("survRM2")
 suppressMessages(require(FHtest))
 
 ## * Settings
-n.sim <- 500
+n.sim <- 100
 
 Tps.inclusion <- 12 
 Restriction.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
@@ -109,7 +109,7 @@ grid <- rbind(grid,
 
 ## * Loop
 res <- NULL
-for(iSim in 1:n.sim){ ## iSim <- 1
+for(iSim in 1:n.sim){ ## iSim <- 1 
     cat(iSim,": ")
     for (iGrid in 1:NROW(grid)){ ## iGrid <- 1
         cat("*")
@@ -134,7 +134,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         TimeEvent.Tr <- rexp(n.Control,HazT)
         
         Toxevent.Ctr <- rbinom(n.Control,1,ptoxC)
-    Toxevent.Tr <- rbinom(n.Treatment,1,ptoxT)
+        Toxevent.Tr <- rbinom(n.Treatment,1,ptoxT)
   
         TimeEvent <- c(TimeEvent.Tr,TimeEvent.Ctr)
         Toxevent <- c(Toxevent.Tr,Toxevent.Ctr)
@@ -157,7 +157,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         NBPeron.confint <- confint(NBPeron)
         
         ## ** Analysis using NBPeron + toxicity
-        NBPeronTox <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold)+ B(Toxeventoperator = "<0"),
+        NBPeronTox <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold)+ B(Toxevent, operator = "<0"),
                               method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
         NBPeronTox.confint <- confint(NBPeronTox)
         
@@ -190,11 +190,11 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                            lower.NBPeron = NBPeron.confint[,"lower.ci"],
                            upper.NBPeron = NBPeron.confint[,"upper.ci"],
                            pval.NBPeron = NBPeron.confint[,"p.value"],
-                           estimate.NBPeronTox = NBPeronTox.confint[,"estimate"],
-                           se.NBPeronTox = NBPeronTox.confint[,"se"],
-                           lower.NBPeronTox = NBPeronTox.confint[,"lower.ci"],
-                           upper.NBPeronTox = NBPeronTox.confint[,"upper.ci"],
-                           pval.NBPeronTox = NBPeronTox.confint[,"p.value"],
+                           estimate.NBPeronTox = NBPeronTox.confint[2,"estimate"],
+                           se.NBPeronTox = NBPeronTox.confint[2,"se"],
+                           lower.NBPeronTox = NBPeronTox.confint[2,"lower.ci"],
+                           upper.NBPeronTox = NBPeronTox.confint[2,"upper.ci"],
+                           pval.NBPeronTox = NBPeronTox.confint[2,"p.value"],
                            estimate.RNBPeron = RNBPeron.confint[,"estimate"],
                            se.RNBPeron = RNBPeron.confint[,"se"],
                            lower.RNBPeron = RNBPeron.confint[,"lower.ci"],

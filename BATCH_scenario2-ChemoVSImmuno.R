@@ -75,7 +75,7 @@ require(survRM2) ## install.packages("survRM2")
 suppressMessages(require(FHtest))
 
 ## * Settings
-n.sim <- 500
+n.sim <- 100
 
 Tps.inclusion <- 12 
 Restriction.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
@@ -189,7 +189,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
        ## ** Analysis using NBPeron + toxicity
     	NBPeronTox <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent, operator = "<0"),
                          method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
-   	NBPeron.confintTox <- confint(NBPeronTox)
+   	NBPeronTox.confint <- confint(NBPeronTox)
 
         ## ** Analysis using RMST
         RMST <- rmst2(time=Time, status=Event, arm=group, tau = NULL, covariates = NULL, alpha = 0.05)
@@ -220,11 +220,11 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                            lower.NBPeron = NBPeron.confint[,"lower.ci"],
                            upper.NBPeron = NBPeron.confint[,"upper.ci"],
                            pval.NBPeron = NBPeron.confint[,"p.value"],
-			   estimate.NBPeronTox = NBPeronTox.confint[,"estimate"],
-                           se.NBPeronTox = NBPeronTox.confint[,"se"],
-                           lower.NBPeronTox = NBPeronTox.confint[,"lower.ci"],
-                           upper.NBPeronTox = NBPeronTox.confint[,"upper.ci"],
-                           pval.NBPeronTox = NBPeronTox.confint[,"p.value"],
+			   estimate.NBPeronTox = NBPeronTox.confint[2,"estimate"],
+                           se.NBPeronTox = NBPeronTox.confint[2,"se"],
+                           lower.NBPeronTox = NBPeronTox.confint[2,"lower.ci"],
+                           upper.NBPeronTox = NBPeronTox.confint[2,"upper.ci"],
+                           pval.NBPeronTox = NBPeronTox.confint[2,"p.value"],
                            estimate.RNBPeron = RNBPeron.confint[,"estimate"],
                            se.RNBPeron = RNBPeron.confint[,"se"],
                            lower.RNBPeron = RNBPeron.confint[,"lower.ci"],
