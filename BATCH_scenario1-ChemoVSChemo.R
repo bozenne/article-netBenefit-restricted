@@ -111,9 +111,9 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         HazC <- 0.085
         HazT <- 0.0595
         
-    #Tox
-    ptoxC <- 0.3
-    ptoxT <- 0.3
+       #Tox
+       ptoxC <- c(0.3,0.3)
+       ptoxT <- c(0.3,0.1)
         
         n.Treatment <- 200
         n.Control <- 200
@@ -122,11 +122,14 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         TimeEvent.Ctr <- rexp(n.Control,HazC)
         TimeEvent.Tr <- rexp(n.Control,HazT)
         
-        Toxevent.Ctr <- rbinom(n.Control,1,ptoxC)
-        Toxevent.Tr <- rbinom(n.Treatment,1,ptoxT)
+        Toxevent1.Ctr <- rbinom(n.Control,1,ptoxC[1])
+        Toxevent1.Tr <- rbinom(n.Treatment,1,ptoxT[1])
+        Toxevent2.Ctr <- rbinom(n.Control,1,ptoxC[2])
+        Toxevent2.Tr <- rbinom(n.Treatment,1,ptoxT[2])
   
         TimeEvent <- c(TimeEvent.Tr,TimeEvent.Ctr)
-        Toxevent <- c(Toxevent.Tr,Toxevent.Ctr)
+        Toxevent1 <- c(Toxevent1.Tr,Toxevent1.Ctr)
+        Toxevent2 <- c(Toxevent2.Tr,Toxevent2.Ctr)
         
         Time.Cens <- runif(n,TpsFin-Tps.inclusion,TpsFin) #varier temps de censure
         Time <- pmin(Time.Cens,TimeEvent)
@@ -146,9 +149,13 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         NBPeron.confint <- confint(NBPeron)
         
         ## ** Analysis using NBPeron + toxicity
-        NBPeronTox <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold)+ B(Toxevent, operator = "<0"),
+        NBPeronTox1 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold)+ B(Toxevent1, operator = "<0"),
                               method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
-        NBPeronTox.confint <- confint(NBPeronTox)
+        NBPeronTox1.confint <- confint(NBPeronTox1)
+        
+        NBPeronTox2 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold)+ B(Toxevent2, operator = "<0"),
+                              method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
+        NBPeronTox2.confint <- confint(NBPeronTox2)
         
         ## ** Analysis using RMST
         RMST <- rmst2(time=Time, status=Event, arm=group, tau = NULL, covariates = NULL, alpha = 0.05)
@@ -187,11 +194,16 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                            lower.NBPeron = NBPeron.confint[,"lower.ci"],
                            upper.NBPeron = NBPeron.confint[,"upper.ci"],
                            pval.NBPeron = NBPeron.confint[,"p.value"],
-                           estimate.NBPeronTox = NBPeronTox.confint[2,"estimate"],
-                           se.NBPeronTox = NBPeronTox.confint[2,"se"],
-                           lower.NBPeronTox = NBPeronTox.confint[2,"lower.ci"],
-                           upper.NBPeronTox = NBPeronTox.confint[2,"upper.ci"],
-                           pval.NBPeronTox = NBPeronTox.confint[2,"p.value"],
+                           estimate.NBPeronTox1 = NBPeronTox1.confint[2,"estimate"],
+                           se.NBPeronTox1 = NBPeronTox1.confint[2,"se"],
+                           lower.NBPeronTox1 = NBPeronTox1.confint[2,"lower.ci"],
+                           upper.NBPeronTox1 = NBPeronTox1.confint[2,"upper.ci"],
+                           pval.NBPeronTox1 = NBPeronTox1.confint[2,"p.value"],
+                           estimate.NBPeronTox2 = NBPeronTox2.confint[2,"estimate"],
+                           se.NBPeronTox2 = NBPeronTox2.confint[2,"se"],
+                           lower.NBPeronTox2 = NBPeronTox2.confint[2,"lower.ci"],
+                           upper.NBPeronTox2 = NBPeronTox2.confint[2,"upper.ci"],
+                           pval.NBPeronTox2 = NBPeronTox2.confint[2,"p.value"],
                            estimate.RNBPeron24 = RNBPeron24.confint[,"estimate"],
                            se.RNBPeron24 = RNBPeron24.confint[,"se"],
                            lower.RNBPeron24 = RNBPeron24.confint[,"lower.ci"],
