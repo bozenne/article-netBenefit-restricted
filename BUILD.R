@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: apr  7 2022 (11:10) 
 ## Version: 
-## Last-Updated: jul 20 2022 (09:44) 
+## Last-Updated: sep 20 2022 (10:05) 
 ##           By: Brice Ozenne
-##     Update #: 54
+##     Update #: 57
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -66,6 +66,8 @@ dt.sc1 <- loadRes("Results/scenario1-ChemoVSChemo")
 setnames(dt.sc1, new = "censure", old = "Taux censure reel")
 setnames(dt.sc1, new = "threshold", old = "Threshold")
 setnames(dt.sc1, new = "rtime", old = "Restriction_time")
+
+dt.sc1[,.(estimate.NBPeron,estimate.RNBPeron)]
 
 dtS.sc1 <- dt.sc1[, .(rep = .N, censure = mean(censure),
                       power5.logrank = mean(pval.LOGRANK<=0.05),
@@ -195,10 +197,6 @@ dtS.sc4 <- dt.sc4[, .(rep = .N, censure = mean(censure),
                       power1.rmstDiff = mean(pval.RMSTdif<=0.01),
                       power5.rmstRatio = mean(pval.RMSTratio<=0.05),
                       power1.rmstRatio = mean(pval.RMSTratio<=0.01),
-                      power5.nbPeron = mean(pval.NBPeron<=0.05),
-                      power1.nbPeron = mean(pval.NBPeron<=0.01),
-                      estimate.nbPeron = mean(estimate.NBPeron),
-                      coverage.nbPeron = mean((lower.NBPeron <= 0)*(0 <= estimate.NBPeron)),
                       power5.rnbPeron = mean(pval.RNBPeron<=0.05),
                       power1.rnbPeron = mean(pval.RNBPeron<=0.01),
                       estimate.rnbPeron = mean(estimate.RNBPeron),
@@ -206,16 +204,15 @@ dtS.sc4 <- dt.sc4[, .(rep = .N, censure = mean(censure),
                       ), by = c("scenario","threshold","rtime") ]
 
 ## * export
-saveRDS(dt.sc1, file = "Results/sim-ChemoVSChemo.rds")
-saveRDS(dt.sc2, file = "Results/sim-ChemoVSImmuno.rds")
-saveRDS(dt.sc3, file = "Results/sim-ImmunoVSImmuno.rds")
-saveRDS(dt.sc4, file = "Results/sim-type1.rds")
-
 saveRDS(dtS.sc1, file = "Results/simSummary-ChemoVSChemo.rds")
 saveRDS(dtS.sc2, file = "Results/simSummary-ChemoVSImmuno.rds")
 saveRDS(dtS.sc3, file = "Results/simSummary-ImmunoVSImmuno.rds")
 saveRDS(dtS.sc4, file = "Results/simSummary-type1.rds")
 
+saveRDS(dt.sc1, file = "Results/sim-ChemoVSChemo.rds")
+saveRDS(dt.sc2, file = "Results/sim-ChemoVSImmuno.rds")
+saveRDS(dt.sc3, file = "Results/sim-ImmunoVSImmuno.rds")
+saveRDS(dt.sc4, file = "Results/sim-type1.rds")
 
 ##----------------------------------------------------------------------
 ### BUILD.R ends here

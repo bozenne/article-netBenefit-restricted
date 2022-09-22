@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: maj  9 2022 (09:53) 
 ## Version: 
-## Last-Updated: jul 20 2022 (09:59) 
+## Last-Updated: sep 20 2022 (09:54) 
 ##           By: Brice Ozenne
-##     Update #: 37
+##     Update #: 43
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -35,6 +35,7 @@ relabel.estimator <- c("logrank" = "Log-rank test",
                        "rmstDiff" = "Difference in RMST",
                        "rmstRatio" = "Ratio of RMST",
                        "nbPeron" = "Net benefit \n (Peron scoring rule)",
+                       "nbPeronTox" = "Net benefit H2 \n (Peron scoring rule)",
                        "rnbPeron" = "Restricted net benefit \n (Peron scoring rule)")
 
 type.power <- "power5."
@@ -42,12 +43,12 @@ legend.power <- "Power (5% significance threshold)"
 legend.type1 <- "Type 1 error (5% significance threshold)"
 
 ## * Generate plots
-## ** scenario 1
+## ** ChemoVSChemo
 dtEstimate.sc1 <- melt(dtS.sc1, id.vars = c("rep","censure","scenario","threshold","rtime"),
-                 measure = patterns("estimate."),
-                 value.name = c("estimate"), variable.name = "estimator")
+                       measure = patterns("estimate."),
+                       value.name = c("estimate"), variable.name = "estimator")
 dtEstimate.sc1[,estimator := gsub("estimate.","",estimator)]
-dtEstimate.sc1[,estimator := factor(estimator, levels = names(relabel.estimator)[5:6], labels = relabel.estimator[5:6])]
+dtEstimate.sc1[,estimator := factor(estimator, levels = unique(estimator), labels = relabel.estimator[unique(estimator)])]
 
 dtPower.sc1 <- melt(dtS.sc1, id.vars = c("rep","censure","scenario","threshold","rtime"),
                     measure = patterns(type.power),
@@ -65,9 +66,9 @@ dtPower.sc1[,estimator := factor(estimator, levels = names(relabel.estimator), l
 ## 6: 10000 0.025755        0         0    60 Restricted net benefit \n (Peron scoring rule) 0.8695000
 
 ## petit changement de nom du graphe pour ne pas melanger
-ggBenefit1 <- ggplot( dtEstimate.sc1[scenario == 0], aes(x = rtime, y = estimate, group = estimator, color = estimator))
-ggBenefit1 <- ggBenefit1 + geom_point() + geom_line() + facet_wrap(~threshold, labeller = label_both, nrow = 1)
-ggBenefit1 <- ggBenefit1 + xlab("Follow-up time (months)") + ylab("") + labs(color = "")
+ggBenefit1 <- ggplot(dtEstimate.sc1[scenario == 0], aes(x = rtime, y = estimate, group = estimator, color = estimator))
+ggBenefit1 <- ggBenefit1 + geom_point() + geom_line() + facet_grid(scenario~threshold, labeller = label_both)
+ggBenefit1 <- ggBenefit1 + xlab("Follow-up time (months)") + ylab("Estimate") + labs(color = "")
 ggBenefit1 <- ggBenefit1 + theme(text = element_text(size=15),
                                  axis.line = element_line(size = 1),
                                  axis.ticks = element_line(size = 1),
@@ -77,9 +78,9 @@ ggBenefit1 <- ggBenefit1 + theme(text = element_text(size=15),
                                  legend.position = "bottom",
                                  panel.spacing = unit(1, "lines"))
 
-ggBenefit1.bis <- ggplot( dtEstimate.sc1[scenario %in% 1:3], aes(x = rtime, y = estimate, group = estimator, color = estimator))
+ggBenefit1.bis <- ggplot( dtEstimate.sc1[scenario %in% c(1:3,5:6)], aes(x = rtime, y = estimate, group = estimator, color = estimator))
 ggBenefit1.bis <- ggBenefit1.bis + geom_point() + geom_line() + facet_wrap(~scenario, labeller = label_both, nrow = 1)
-ggBenefit1.bis <- ggBenefit1.bis + xlab("Follow-up time (months)") + ylab("") + labs(color = "")
+ggBenefit1.bis <- ggBenefit1.bis + xlab("Follow-up time (months)") + ylab("Estimate") + labs(color = "")
 ggBenefit1.bis <- ggBenefit1.bis + theme(text = element_text(size=15),
                                          axis.line = element_line(size = 1),
                                          axis.ticks = element_line(size = 1),
@@ -91,7 +92,7 @@ ggBenefit1.bis <- ggBenefit1.bis + theme(text = element_text(size=15),
 
 
 ggPower1 <- ggplot(dtPower.sc1[scenario==0], aes(x = rtime, y = power, group = estimator, color = estimator))
-ggPower1 <- ggPower1 + geom_point() + geom_line() + facet_wrap(~threshold, labeller = label_both, nrow = 1)
+ggPower1 <- ggPower1 + geom_point() + geom_line() + facet_grid(scenario~threshold, labeller = label_both)
 ggPower1 <- ggPower1 + xlab("Follow-up time (months)") + ylab(legend.power) + labs(color = "")
 ggPower1 <- ggPower1 + theme(text = element_text(size=15),
                              axis.line = element_line(size = 1),
@@ -103,7 +104,7 @@ ggPower1 <- ggPower1 + theme(text = element_text(size=15),
                              panel.spacing = unit(1, "lines"))
 
 
-ggPower1.bis <- ggplot(dtPower.sc1[scenario %in% 1:3], aes(x = rtime, y = power, group = estimator, color = estimator))
+ggPower1.bis <- ggplot(dtPower.sc1[scenario %in% c(1:3,5:6)], aes(x = rtime, y = power, group = estimator, color = estimator))
 ggPower1.bis <- ggPower1.bis + geom_point() + geom_line() + facet_wrap(~scenario, labeller = label_both, nrow = 1)
 ggPower1.bis <- ggPower1.bis + xlab("Follow-up time (months)") + ylab(legend.power) + labs(color = "")
 ggPower1.bis <- ggPower1.bis + theme(text = element_text(size=15),
@@ -115,12 +116,12 @@ ggPower1.bis <- ggPower1.bis + theme(text = element_text(size=15),
                                      legend.position = "bottom",
                                      panel.spacing = unit(1, "lines"))
 
-## ** scenario 2
+## ** ChemoVSImmuno
 dtEstimate.sc2 <- melt(dtS.sc2, id.vars = c("rep","censure","scenario","threshold","rtime"),
                        measure = patterns("estimate."),
                        value.name = c("estimate"), variable.name = "estimator")
 dtEstimate.sc2[,estimator := gsub("estimate.","",estimator)]
-dtEstimate.sc2[,estimator := factor(estimator, levels = names(relabel.estimator)[5:6], labels = relabel.estimator[5:6])]
+dtEstimate.sc2[,estimator := factor(estimator, levels = unique(estimator), labels = relabel.estimator[unique(estimator)])]
 
 dtPower.sc2 <- melt(dtS.sc2, id.vars = c("rep","censure","scenario","threshold","rtime"),
                  measure = patterns(type.power),
@@ -130,8 +131,8 @@ dtPower.sc2[,estimator := factor(estimator, levels = names(relabel.estimator), l
 
 ## petit changement de nom du graphe pour ne pas melanger
 ggBenefit2 <- ggplot(dtEstimate.sc2[scenario==0], aes(x = rtime, y = estimate, group = estimator, color = estimator))
-ggBenefit2 <- ggBenefit2 + geom_point() + geom_line() + facet_wrap(~threshold, labeller = label_both, nrow = 1)
-ggBenefit2 <- ggBenefit2 + xlab("Follow-up time (months)") + ylab("") + ylab("") + labs(color = "")
+ggBenefit2 <- ggBenefit2 + geom_point() + geom_line() + facet_grid(scenario~threshold, labeller = label_both)
+ggBenefit2 <- ggBenefit2 + xlab("Follow-up time (months)") + ylab("Estimate") + ylab("") + labs(color = "")
 ggBenefit2 <- ggBenefit2 + theme(text = element_text(size=15),
                                  axis.line = element_line(size = 1),
                                  axis.ticks = element_line(size = 1),
@@ -142,9 +143,9 @@ ggBenefit2 <- ggBenefit2 + theme(text = element_text(size=15),
                                  panel.spacing = unit(1, "lines"))
 
 
-ggBenefit2.bis <- ggplot(dtEstimate.sc2[scenario %in% 1:3], aes(x = rtime, y = estimate, group = estimator, color = estimator))
+ggBenefit2.bis <- ggplot(dtEstimate.sc2[scenario %in% c(1:3,5:6)], aes(x = rtime, y = estimate, group = estimator, color = estimator))
 ggBenefit2.bis <- ggBenefit2.bis + geom_point() + geom_line() + facet_wrap(~scenario, labeller = label_both)
-ggBenefit2.bis <- ggBenefit2.bis + xlab("Follow-up time (months)") + ylab("") + ylab("") + labs(color = "")
+ggBenefit2.bis <- ggBenefit2.bis + xlab("Follow-up time (months)") + ylab("Estimate") + ylab("") + labs(color = "")
 ggBenefit2.bis <- ggBenefit2.bis + theme(text = element_text(size=15),
                                          axis.line = element_line(size = 1),
                                          axis.ticks = element_line(size = 1),
@@ -155,7 +156,7 @@ ggBenefit2.bis <- ggBenefit2.bis + theme(text = element_text(size=15),
                                          panel.spacing = unit(1, "lines"))
 
 ggPower2 <- ggplot(dtPower.sc2[scenario==0], aes(x = rtime, y = power, group = estimator, color = estimator))
-ggPower2 <- ggPower2 + geom_point() + geom_line() + facet_wrap(~threshold, labeller = label_both, nrow = 1)
+ggPower2 <- ggPower2 + geom_point() + geom_line() + facet_grid(scenario~threshold, labeller = label_both)
 ggPower2 <- ggPower2 + xlab("Follow-up time (months)") + ylab(legend.power) + labs(color = "")
 ggPower2 <- ggPower2 + theme(text = element_text(size=15),
                              axis.line = element_line(size = 1),
@@ -167,7 +168,7 @@ ggPower2 <- ggPower2 + theme(text = element_text(size=15),
                              panel.spacing = unit(1, "lines"))
 
 
-ggPower2.bis <- ggplot(dtPower.sc2[scenario %in% 1:3], aes(x = rtime, y = power, group = estimator, color = estimator))
+ggPower2.bis <- ggplot(dtPower.sc2[scenario %in% c(1:3,5:6)], aes(x = rtime, y = power, group = estimator, color = estimator))
 ggPower2.bis <- ggPower2.bis + geom_point() + geom_line() + facet_wrap(~scenario, labeller = label_both)
 ggPower2.bis <- ggPower2.bis + xlab("Follow-up time (months)") + ylab(legend.power) + labs(color = "")
 ggPower2.bis <- ggPower2.bis + theme(text = element_text(size=15),
@@ -179,12 +180,12 @@ ggPower2.bis <- ggPower2.bis + theme(text = element_text(size=15),
                                      legend.position = "bottom",
                                      panel.spacing = unit(1, "lines"))
 
-## ** scenario 3
+## ** ImmunoVSImmuno
 dtEstimate.sc3 <- melt(dtS.sc3, id.vars = c("rep","censure","scenario","threshold","rtime"),
                        measure = patterns("estimate."),
                        value.name = c("estimate"), variable.name = "estimator")
 dtEstimate.sc3[,estimator := gsub("estimate.","",estimator)]
-dtEstimate.sc3[,estimator := factor(estimator, levels = names(relabel.estimator)[5:6], labels = relabel.estimator[5:6])]
+dtEstimate.sc3[,estimator := factor(estimator, levels = unique(estimator), labels = relabel.estimator[unique(estimator)])]
 
 dtPower.sc3 <- melt(dtS.sc3, id.vars = c("rep","censure","scenario","threshold","rtime"),
                  measure = patterns(type.power),
@@ -194,7 +195,7 @@ dtPower.sc3[,estimator := factor(estimator, levels = names(relabel.estimator), l
 
 ## petit changement de nom du graphe pour ne pas melanger
 ggBenefit3 <- ggplot(dtEstimate.sc3[scenario==0], aes(x = rtime, y = estimate, group = estimator, color = estimator))
-ggBenefit3 <- ggBenefit3 + geom_point() + geom_line() + facet_wrap(~threshold, labeller = label_both, nrow = 1)
+ggBenefit3 <- ggBenefit3 + geom_point() + geom_line() + facet_grid(scenario~threshold, labeller = label_both)
 ggBenefit3 <- ggBenefit3 + xlab("Follow-up time (months)") + ylab("") + labs(color = "")
 ggBenefit3 <- ggBenefit3 + theme(text = element_text(size=15),
                                  axis.line = element_line(size = 1),
@@ -205,7 +206,7 @@ ggBenefit3 <- ggBenefit3 + theme(text = element_text(size=15),
                                  legend.position = "bottom",
                                  panel.spacing = unit(1, "lines"))
 
-ggBenefit3.bis <- ggplot(dtEstimate.sc3[scenario %in% 1:3], aes(x = rtime, y = estimate, group = estimator, color = estimator))
+ggBenefit3.bis <- ggplot(dtEstimate.sc3[scenario %in% c(1:3,5:6)], aes(x = rtime, y = estimate, group = estimator, color = estimator))
 ggBenefit3.bis <- ggBenefit3.bis + geom_point() + geom_line() + facet_wrap(~scenario, labeller = label_both, nrow = 1)
 ggBenefit3.bis <- ggBenefit3.bis + xlab("Follow-up time (months)") + ylab("") + labs(color = "")
 ggBenefit3.bis <- ggBenefit3.bis + theme(text = element_text(size=15),
@@ -218,7 +219,7 @@ ggBenefit3.bis <- ggBenefit3.bis + theme(text = element_text(size=15),
                                          panel.spacing = unit(1, "lines"))
 
 ggPower3 <- ggplot(dtPower.sc3[scenario==0], aes(x = rtime, y = power, group = estimator, color = estimator))
-ggPower3 <- ggPower3 + geom_point() + geom_line() + facet_wrap(~threshold, labeller = label_both, nrow = 1)
+ggPower3 <- ggPower3 + geom_point() + geom_line() + facet_grid(scenario~threshold, labeller = label_both)
 ggPower3 <- ggPower3 + xlab("Follow-up time (months)") + ylab(legend.power) + labs(color = "")
 ggPower3 <- ggPower3 + theme(text = element_text(size=15),
                              axis.line = element_line(size = 1),
@@ -230,7 +231,7 @@ ggPower3 <- ggPower3 + theme(text = element_text(size=15),
                              panel.spacing = unit(1, "lines"))
 
 
-ggPower3.bis <- ggplot(dtPower.sc3[scenario %in% 1:3], aes(x = rtime, y = power, group = estimator, color = estimator))
+ggPower3.bis <- ggplot(dtPower.sc3[scenario %in% c(1:3,5:6)], aes(x = rtime, y = power, group = estimator, color = estimator))
 ggPower3.bis <- ggPower3.bis + geom_point() + geom_line() + facet_wrap(~scenario, labeller = label_both, nrow = 1)
 ggPower3.bis <- ggPower3.bis + xlab("Follow-up time (months)") + ylab(legend.power) + labs(color = "")
 ggPower3.bis <- ggPower3.bis + theme(text = element_text(size=15),
