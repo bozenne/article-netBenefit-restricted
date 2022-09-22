@@ -85,17 +85,7 @@ grid <- expand.grid(restrictionTime = FollowUp.time_list,
                     threshold = Threshold_list,
                     scenario = 0)
 
-grid <- rbind(grid,
-              cbind(restrictionTime = FollowUp.time_list,
-                    threshold = 0.1*FollowUp.time_list,
-                    scenario = 1))
-
 ## pour faire varier les ratio threshold/restriction time
-grid <- rbind(grid,
-              cbind(restrictionTime = FollowUp.time_list,
-                    threshold = 0.05*FollowUp.time_list,
-                    scenario = 2))
-
 grid <- rbind(grid,
               cbind(restrictionTime = FollowUp.time_list,
                     threshold = 0.2*FollowUp.time_list,
