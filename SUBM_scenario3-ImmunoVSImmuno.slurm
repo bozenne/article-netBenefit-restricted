@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=scenario3-ImmunoVSImmuno  # Job name
 #SBATCH --array=1-100     # Number of jobs
-#SBATCH --partition=standard    # Queue. Use long for run time >8h and standard otherwise
+#SBATCH --partition=long    # Queue. Use long for run time >8h and standard otherwise
 #SBATCH --mem=1G # Memory limit, e.g. reserve 1 GB memory 
 #SBATCH --output=output/scenario3-ImmunoVSImmuno/slurm-%x-%a-%J.out # Direct output to subdirectory
 #SBATCH --error=output/scenario3-ImmunoVSImmuno/slurm-%x-%a-%J.out # Same file for output and error
@@ -14,7 +14,7 @@ R CMD BATCH --vanilla BATCH_scenario3-ImmunoVSImmuno.R output/scenario3-ImmunoVS
 ## clean results      ## rm -r ./Results/scenario3-ImmunoVSImmuno/*
 ## submission command ## sbatch SUBM_scenario3-ImmunoVSImmuno.slurm
 
-## submission output  ## Submitted batch job 1961071 (time using C-c t: mandag 22-09-19 at 11:35) 
+## submission output  ## Submitted batch job 2016990 (time using C-c t: torsdag 22-09-22 at 17:32) 
 
 ## init               ## module module load gcc/11.2.0 R/4.1.2
                       ## cat .bash_profile (in the root directory on the server to visualize the current configuration)
