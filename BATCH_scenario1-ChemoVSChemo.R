@@ -86,7 +86,7 @@ grid <- rbind(grid,
 
 grid <- rbind(grid,
               cbind(FollowUpTime = FollowUp.time_list,
-                  threshold = 0.4*FollowUp.time_list,
+                    threshold = 0.4*FollowUp.time_list,
                     scenario = 6))
 
 ## pour obtenir la valeur exacte du net benefit sans censure
