@@ -1,0 +1,578 @@
+
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ## * Header
+> ## ** interactive
+> ## path <- "h:/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/"
+> ## setwd(path)
+> ## source("BATCH_scenario3-ImmunoVSImmuno.R")
+> ## ** slurm
+> ## cd ucph/hdir/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/
+> ## sbatch -a 1-1 -J 'scenario3-ImmunoVSImmuno' --output=/dev/null --error=/dev/null R CMD BATCH --vanilla BATCH_scenario3.R /dev/null 
+> ## ** BATCH
+> ## cd ucph/hdir/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/
+> ## R CMD BATCH --vanilla '--args iter_sim=1 n.iter_sim=10' BATCH_scenario3-ImmunoVSImmuno.R output/scenario3-ImmunoVSImmuno/R-ImmunoVSImmuno-1.Rout &
+> ## ** BATCH loop
+> ## cd ucph/hdir/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/
+> ## for ITER in `seq 1 10`;
+> ## do
+> ## eval 'R CMD BATCH --vanilla "--args iter_sim='$ITER' n.iter_sim=10" BATCH_scenario3-ImmunoVSImmuno.R output/scenario3-ImmunoVSImmuno/R-ImmunoVSImmuno-'$ITER'.Rout &'
+> ## done
+> 
+> ## [22] 3353323
+> ## [23] 3353324
+> ## [24] 3353325
+> ## [25] 3353326
+> ## [26] 3353327
+> ## [27] 3353328
+> ## [28] 3353329
+> ## [29] 3353330
+> ## [30] 3353331
+> ## [31] 3353332
+> 
+> rm(list = ls())
+> gc()
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 270604 14.5     665617 35.6   408739 21.9
+Vcells 451653  3.5    8388608 64.0  1819181 13.9
+> 
+> ## * Argument
+> args <- commandArgs(TRUE) ## BATCH MODE
+> if(length(args)>0){
++     for (arg in args){
++         eval(parse(text=arg))
++     }
++ }else{ ## SLUMR
++     iter_sim <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
++     n.iter_sim <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_COUNT"))
++ } ## interactive
+> if(is.na(iter_sim)){iter_sim <- 1}
+> if(is.na(n.iter_sim)){n.iter_sim <- 10}
+> cat("iteration ",iter_sim," over ",n.iter_sim,"\n",sep="")
+iteration 44 over 100
+> 
+> ## * Prepare export
+> path <- "."
+> path.res <- file.path(path,"Results","scenario3-ImmunoVSImmuno")
+> if(dir.exists(path.res)==FALSE){
++     if(dir.exists(file.path(path,"Results"))==FALSE){
++     dir.create(file.path(path,"Results"))
++     }
++     dir.create(path.res)
++ }
+> path.output <- file.path(path,"output","scenario3-ImmunoVSImmuno")
+> if(dir.exists(path.output)==FALSE){
++     if(dir.exists(file.path(path,"output"))==FALSE){
++     dir.create(file.path(path,"output"))
++     }
++     dir.create(path.output)
++ }
+> 
+> ## * Libraries
+> require(survival)
+Loading required package: survival
+> require(BuyseTest) ## install.packages("BuyseTest")
+Loading required package: BuyseTest
+Loading required package: Rcpp
+BuyseTest version 2.3.12
+> require(survRM2) ## install.packages("survRM2")
+Loading required package: survRM2
+> suppressMessages(require(FHtest)) ## install.packages("FHtest")
+> 
+> ## * Settings
+> n.sim <- 100
+> 
+> Tps.inclusion <- 12 
+> FollowUp.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
+> Threshold_list <- c(0,6,12,18,24) ## 0,6,12
+> 
+> grid <- expand.grid(FollowUpTime = FollowUp.time_list,
++                     threshold = Threshold_list,
++                     scenario = 0)
+> 
+> #pour faire varier les ratio threshold/restriction time
+> grid <- rbind(grid,
++               cbind(FollowUpTime = FollowUp.time_list,
++                     threshold = 0.2*FollowUp.time_list,
++                     scenario = 3))
+> 
+> grid <- rbind(grid,
++               cbind(FollowUpTime = FollowUp.time_list,
++                     threshold = 0.3*FollowUp.time_list,
++                     scenario = 5))
+> 
+> grid <- rbind(grid,
++               cbind(FollowUpTime = FollowUp.time_list,
++                     threshold = 0.4*FollowUp.time_list,
++                     scenario = 6))
+> 
+> #pour obtenir la valeur exacte du net benefit sans censure
+> grid <- rbind(grid,
++               cbind(FollowUpTime = 1000,
++                     threshold = Threshold_list,
++                     scenario = 4))
+> 
+> ## * Seed
+> cat("iteration ",iter_sim," over ",n.iter_sim,"\n",sep="")
+iteration 44 over 100
+> 
+> set.seed(1)
+> seqSeed <- sample(1:1e5,size=n.iter_sim*n.sim,replace=FALSE)
+> ## any(duplicated(seqSeed))
+> iSeed <- seqSeed[(n.sim*(iter_sim-1)+1):(n.sim*iter_sim)]
+> 
+> 
+> ## * Loop
+> res <- NULL
+> for(iSim in 1:n.sim){ ## iSim <- 1
++     cat(iSim," (seed=",iSeed[iSim],"): ",sep="")
++     for (iGrid in 1:NROW(grid)){ ## iGrid <- 1 
++         cat("*")
++         set.seed(iSeed[iSim])
++ 
++         iThreshold <- grid$threshold[iGrid]
++         iFollowUpTime <- grid$FollowUpTime[iGrid]
++         iScenario <- grid$scenario[iGrid]
++ 
++         ## ** Generate data
++       	HazC <- 0.18
++         HazT <- 0.18
++       
++         HazT2T <- HazT*0.6
++         HazT3T <- HazT*0.3
++         HazT4T <- HazT*0.08
++         HazT5T <- HazT*0.02
++       
++         HazT2C <- HazC*0.6
++         HazT3C <- HazC*0.5
++         HazT4C <- HazC*0.45
++         HazT5C <- HazC*0.1
++       
++         t1 <- 3
++         t2 <- 6
++         t3 <- 9
++         t4 <- 12
++         
++         t1C <- 3
++         t2C <- 6
++         t3C <- 9
++         t4C <- 12
++         
++         n.Treatment <- 200
++         n.Control <- 200
++         n <- n.Treatment+n.Control
++ 	       
++         ## Tox
++         ptoxC <- c(0.3,0.3)
++         ptoxT <- c(0.3,0.1)
++         Toxevent1.Ctr <- rbinom(n.Control,1,ptoxC[1])
++         Toxevent1.Tr <- rbinom(n.Treatment,1,ptoxT[1])
++         Toxevent2.Ctr <- rbinom(n.Control,1,ptoxC[2])
++         Toxevent2.Tr <- rbinom(n.Treatment,1,ptoxT[2])
++       
++         ## *** in control group
++         TimeEvent.Ctr1 <- rexp(n.Control,HazC)
++         TimeEvent.Ctr2 <- rexp(n.Control,HazT2C)
++         TimeEvent.Ctr3 <- rexp(n.Control,HazT3C)
++         TimeEvent.Ctr4 <- rexp(n.Control,HazT4C)
++         TimeEvent.Ctr5 <- rexp(n.Control,HazT5C)
++         
++         TimeEvent.Ctr <- ifelse(TimeEvent.Ctr1<t1C,TimeEvent.Ctr1,
++                               ifelse(t1C+TimeEvent.Ctr2<t2C,t1C+TimeEvent.Ctr2,
++                                      ifelse(t2C+TimeEvent.Ctr3<t3C,t2C+TimeEvent.Ctr3,
++                                             ifelse(t3C+TimeEvent.Ctr4<t4C,t3C+TimeEvent.Ctr4,
++                                                    t4C+TimeEvent.Ctr5))))
++         
++         ## *** in treatment group
++         TimeEvent.Tr1 <- rexp(n.Control,HazT)
++         TimeEvent.Tr2 <- rexp(n.Control,HazT2T)
++         TimeEvent.Tr3 <- rexp(n.Control,HazT3T)
++         TimeEvent.Tr4 <- rexp(n.Control,HazT4T)
++         TimeEvent.Tr5 <- rexp(n.Control,HazT5T)
++         TimeEvent.Tr <- ifelse(TimeEvent.Tr1<t1,TimeEvent.Tr1,
++                              ifelse(t1+TimeEvent.Tr2<t2,t1+TimeEvent.Tr2,
++                                     ifelse(t2+TimeEvent.Tr3<t3,t2+TimeEvent.Tr3,
++                                            ifelse(t3+TimeEvent.Tr4<t4,t3+TimeEvent.Tr4,
++                                                   t4+TimeEvent.Tr5))))
++         
++         TimeEvent <- c(TimeEvent.Tr,TimeEvent.Ctr)
++         Toxevent1 <- c(Toxevent1.Tr,Toxevent1.Ctr)
++         Toxevent2 <- c(Toxevent2.Tr,Toxevent2.Ctr)
++ 
++         Time.Cens <- runif(n,iFollowUpTime-Tps.inclusion,iFollowUpTime) ## varier temps de censure
++         tab <- data.frame(group = c(rep(1, n.Treatment),rep(0, n.Control)),
++                           Time0 = TimeEvent,
++                           Event0 = 1,
++                           Time = pmin(Time.Cens,TimeEvent),
++                           Event = NA,
++                           Toxevent1 = Toxevent1,
++                           Toxevent2 = Toxevent2)
++         tab$Event <- as.numeric(tab$Time==TimeEvent)
++         Taux.cens.reel <- 1 - mean(tab$Event)
++         
++         ## ** Analysis using LR
++         LR <- (survdiff(Surv(time=Time, event=Event) ~ group, data=tab, rho=0))
++         pval.LR <- 1 - pchisq(LR$chisq, 1) 
++   
++         ## ** analysis using NBPeron
++         NBPeron <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold),
++                               method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
++         NBPeron.confint <- confint(NBPeron)
++ 	    
++         ## without censoring
++         NB.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold),
++                                     method.inference = "none", trace = 0)
++ 
++ 	## ** Analysis using NBPeron + toxicity
++     	NBPeronTox1 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent1, operator = "<0"),
++                          method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
++     	NBPeronTox1.confint <- confint(NBPeronTox1)
++ 
++     	NBPeronTox2 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent2, operator = "<0"),
++                          method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
++     	NBPeronTox2.confint <- confint(NBPeronTox2)
++ 
++         ## without censoring
++         NBTox1.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold) + B(Toxevent1, operator = "<0"),
++                                         method.inference = "none", trace = 0)
++         NBTox2.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold) + B(Toxevent2, operator = "<0"),
++                                         method.inference = "none", trace = 0)
++ 
++         ## ** Analysis using RMST
++         RMST <- rmst2(time=tab$Time, status=tab$Event, arm=tab$group, tau = NULL, covariates = NULL, alpha = 0.05)
++         pval.RMSTdif <- RMST[["unadjusted.result"]][1,4]
++         pval.RMSTratio <- RMST[["unadjusted.result"]][2,4]
++   
++         ## ** Analysis using WLR # modifi? dans la version 2
++         WLR <- try(FHtestrcc(Surv(time=Time, event=Event) ~ group, data = tab, rho = 0,lambda = 1))
++         if(inherits(WLR,"try-error")){
++             pval.WLR <- NA
++         }else{
++             pval.WLR <- WLR$pvalue
++         }
++ 
++         ## ** Analysis using RNBPeron
++         if(iFollowUpTime<=24){
++             RNBPeron24.confint <- NBPeron.confint
++         }else{
++             RNBPeron24 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold, restriction=24),
++                                     method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
++             RNBPeron24.confint <- confint(RNBPeron24)
++         }
++ 
++         if(iFollowUpTime<=36){
++             RNBPeron36.confint <- NBPeron.confint
++         }else{
++             RNBPeron36 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold, restriction=36),
++                                     method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
++             RNBPeron36.confint <- confint(RNBPeron36)
++         }
++   
++         if(iFollowUpTime<=48){
++             RNBPeron48.confint <- NBPeron.confint
++         }else{
++             RNBPeron48 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold, restriction=48),
++                                     method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
++             RNBPeron48.confint <- confint(RNBPeron48)
++         }
++   
++         ## without censoring
++         rNB.noCensoring24 <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold, restriction = 24),
++                                        method.inference = "none", trace = 0)
++         rNB.noCensoring36 <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold, restriction = 36),
++                                        method.inference = "none", trace = 0)
++         rNB.noCensoring48 <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold, restriction = 48),
++                                        method.inference = "none", trace = 0)
++ 
++         ## ** créer la table de résultats
++         res <- rbind(res,c(iteration = iSim,
++                            seed = iSeed[iSim],
++                            FollowUp_time = iFollowUpTime,
++                            scenario = iScenario,
++                            Threshold = iThreshold,
++                            "Taux censure reel" = Taux.cens.reel,
++                            ## NBPeron
++                            GS.NBPeron = as.numeric(coef(NB.noCensoring)),
++                            estimate.NBPeron = NBPeron.confint[,"estimate"],
++                            se.NBPeron = NBPeron.confint[,"se"],
++                            lower.NBPeron = NBPeron.confint[,"lower.ci"],
++                            upper.NBPeron = NBPeron.confint[,"upper.ci"],
++                            pval.NBPeron = NBPeron.confint[,"p.value"],
++                            ## NBPeronTox1
++ 			   GS.NBPeronTox1 = as.numeric(utils::tail(coef(NBTox1.noCensoring),1)),
++ 			   estimate.NBPeronTox1 = NBPeronTox1.confint[2,"estimate"],
++                            se.NBPeronTox1 = NBPeronTox1.confint[2,"se"],
++                            lower.NBPeronTox1 = NBPeronTox1.confint[2,"lower.ci"],
++                            upper.NBPeronTox1 = NBPeronTox1.confint[2,"upper.ci"],
++                            pval.NBPeronTox1 = NBPeronTox1.confint[2,"p.value"],
++                            ## NBPeronTox2
++ 			   GS.NBPeronTox2 = as.numeric(utils::tail(coef(NBTox2.noCensoring),1)),
++                            estimate.NBPeronTox2 = NBPeronTox2.confint[2,"estimate"],
++                            se.NBPeronTox2 = NBPeronTox2.confint[2,"se"],
++                            lower.NBPeronTox2 = NBPeronTox2.confint[2,"lower.ci"],
++                            upper.NBPeronTox2 = NBPeronTox2.confint[2,"upper.ci"],
++                            pval.NBPeronTox2 = NBPeronTox2.confint[2,"p.value"],
++                            ## RNBPeron24
++                            GS.rNBPeron24 = as.numeric(coef(rNB.noCensoring24)),
++                            estimate.RNBPeron24 = RNBPeron24.confint[,"estimate"],
++                            se.RNBPeron24 = RNBPeron24.confint[,"se"],
++                            lower.RNBPeron24 = RNBPeron24.confint[,"lower.ci"],
++                            upper.RNBPeron24 = RNBPeron24.confint[,"upper.ci"],
++                            pval.RNBPeron24 = RNBPeron24.confint[,"p.value"],
++                            ## RNBPeron36
++                            GS.rNBPeron36 = as.numeric(coef(rNB.noCensoring36)),
++                            estimate.RNBPeron36 = RNBPeron36.confint[,"estimate"],
++                            se.RNBPeron36 = RNBPeron36.confint[,"se"],
++                            lower.RNBPeron36 = RNBPeron36.confint[,"lower.ci"],
++                            upper.RNBPeron36 = RNBPeron36.confint[,"upper.ci"],
++                            pval.RNBPeron36 = RNBPeron36.confint[,"p.value"],
++                            ## RNBPeron48
++                            GS.rNBPeron48 = as.numeric(coef(rNB.noCensoring48)),
++                            estimate.RNBPeron48 = RNBPeron48.confint[,"estimate"],
++                            se.RNBPeron48 = RNBPeron48.confint[,"se"],
++                            lower.RNBPeron48 = RNBPeron48.confint[,"lower.ci"],
++                            upper.RNBPeron48 = RNBPeron48.confint[,"upper.ci"],
++                            pval.RNBPeron48 = RNBPeron48.confint[,"p.value"],
++                            ## Other
++                            pval.LOGRANK = pval.LR,
++                            pval.WeightedLOGRANK = pval.WLR,
++                            pval.RMSTdif = pval.RMSTdif,
++                            pval.RMSTratio = pval.RMSTratio))
++ 
++     }
++     saveRDS(res, file = file.path(path.res,paste0("simul_ImmunoVSImmuno_",iter_sim,"(tempo).rds")))
++     cat("\n")
++ }
+1 (seed=93447): *********************************************************************************************************************************************
+2 (seed=96997): *********************************************************************************************************************************************
+3 (seed=6148): *********************************************************************************************************************************************
+4 (seed=59728): *********************************************************************************************************************************************
+5 (seed=87752): *********************************************************************************************************************************************
+6 (seed=27600): *********************************************************************************************************************************************
+7 (seed=64949): *********************************************************************************************************************************************
+8 (seed=33732): ***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+***************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+
+9 (seed=80127): *********************************************************************************************************************************************
+10 (seed=89862): *********************************************************************************************************************************************
+11 (seed=57189): *********************************************************************************************************************************************
+12 (seed=66468): *********************************************************************************************************************************************
+13 (seed=69606): *********************************************************************************************************************************************
+14 (seed=96428): *********************************************************************************************************************************************
+15 (seed=60849): *********************************************************************************************************************************************
+16 (seed=46804): *********************************************************************************************************************************************
+17 (seed=86302): *********************************************************************************************************************************************
+18 (seed=96598): *********************************************************************************************************************************************
+19 (seed=30869): *********************************************************************************************************************************************
+20 (seed=18445): *********************************************************************************************************************************************
+21 (seed=41197): *********************************************************************************************************************************************
+22 (seed=80697): *********************************************************************************************************************************************
+23 (seed=46686): *********************************************************************************************************************************************
+24 (seed=33103): *********************************************************************************************************************************************
+25 (seed=97024): *********************************************************************************************************************************************
+26 (seed=67555): *********************************************************************************************************************************************
+27 (seed=78721): *********************************************************************************************************************************************
+28 (seed=40878): *********************************************************************************************************************************************
+29 (seed=10049): *********************************************************************************************************************************************
+30 (seed=95354): *********************************************************************************************************************************************
+31 (seed=3186): *********************************************************************************************************************************************
+32 (seed=39134): *********************************************************************************************************************************************
+33 (seed=43446): *********************************************************************************************************************************************
+34 (seed=51300): *********************************************************************************************************************************************
+35 (seed=42847): *********************************************************************************************************************************************
+36 (seed=56748): *********************************************************************************************************************************************
+37 (seed=51623): *********************************************************************************************************************************************
+38 (seed=23841): *********************************************************************************************************************************************
+39 (seed=47450): *********************************************************************************************************************************************
+40 (seed=55950): *********************************************************************************************************************************************
+41 (seed=79329): *********************************************************************************************************************************************
+42 (seed=11941): *********************************************************************************************************************************************
+43 (seed=49156): *********************************************************************************************************************************************
+44 (seed=29807): *********************************************************************************************************************************************
+45 (seed=1819): *********************************************************************************************************************************************
+46 (seed=75615): *********************************************************************************************************************************************
+47 (seed=68498): *********************************************************************************************************************************************
+48 (seed=47313): *********************************************************************************************************************************************
+49 (seed=10359): *********************************************************************************************************************************************
+50 (seed=56531): *********************************************************************************************************************************************
+51 (seed=5478): *********************************************************************************************************************************************
+52 (seed=12287): *********************************************************************************************************************************************
+53 (seed=72721): *********************************************************************************************************************************************
+54 (seed=37910): *********************************************************************************************************************************************
+55 (seed=16774): *********************************************************************************************************************************************
+56 (seed=11048): *********************************************************************************************************************************************
+57 (seed=81256): *********************************************************************************************************************************************
+58 (seed=22148): *********************************************************************************************************************************************
+59 (seed=45684): *********************************************************************************************************************************************
+60 (seed=66244): *********************************************************************************************************************************************
+61 (seed=52759): *********************************************************************************************************************************************
+62 (seed=17231): *********************************************************************************************************************************************
+63 (seed=22186): *********************************************************************************************************************************************
+64 (seed=74394): *********************************************************************************************************************************************
+65 (seed=97905): *********************************************************************************************************************************************
+66 (seed=15013): *********************************************************************************************************************************************
+67 (seed=1998): *********************************************************************************************************************************************
+68 (seed=37131): *********************************************************************************************************************************************
+69 (seed=34871): *****************************************************************************************************************************************Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+*Error in (w^rho * (1 - w)^lambda) %*% t(neventg) : 
+  non-conformable arguments
+
+70 (seed=77048): *********************************************************************************************************************************************
+71 (seed=12060): *********************************************************************************************************************************************
+72 (seed=52466): *********************************************************************************************************************************************
+73 (seed=34082): *********************************************************************************************************************************************
+74 (seed=59133): *********************************************************************************************************************************************
+75 (seed=65292): *********************************************************************************************************************************************
+76 (seed=30636): *********************************************************************************************************************************************
+77 (seed=94774): *********************************************************************************************************************************************
+78 (seed=76662): *********************************************************************************************************************************************
+79 (seed=19427): *********************************************************************************************************************************************
+80 (seed=58005): *********************************************************************************************************************************************
+81 (seed=7416): *********************************************************************************************************************************************
+82 (seed=74631): *********************************************************************************************************************************************
+83 (seed=49282): *********************************************************************************************************************************************
+84 (seed=24963): *********************************************************************************************************************************************
+85 (seed=10357): *********************************************************************************************************************************************
+86 (seed=2484): *********************************************************************************************************************************************
+87 (seed=40261): *********************************************************************************************************************************************
+88 (seed=5860): *********************************************************************************************************************************************
+89 (seed=79141): *********************************************************************************************************************************************
+90 (seed=27833): *********************************************************************************************************************************************
+91 (seed=44616): *********************************************************************************************************************************************
+92 (seed=85756): *********************************************************************************************************************************************
+93 (seed=46429): *********************************************************************************************************************************************
+94 (seed=38407): *********************************************************************************************************************************************
+95 (seed=58284): *********************************************************************************************************************************************
+96 (seed=33842): *********************************************************************************************************************************************
+97 (seed=58907): *********************************************************************************************************************************************
+98 (seed=17036): *********************************************************************************************************************************************
+99 (seed=61963): *********************************************************************************************************************************************
+100 (seed=99667): *********************************************************************************************************************************************
+> 
+> ## * Export
+> saveRDS(res, file = file.path(path.res,paste0("simul_ImmunoVSImmuno_",iter_sim,".rds")))
+> 
+> ## * R version
+> print(sessionInfo())
+R version 4.1.2 (2021-11-01)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Red Hat Enterprise Linux 8.6 (Ootpa)
+
+Matrix products: default
+BLAS:   /opt/software/R/4.1.2/lib64/R/lib/libRblas.so
+LAPACK: /opt/software/R/4.1.2/lib64/R/lib/libRlapack.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] FHtest_1.5       KMsurv_0.1-5     interval_1.1-0.8 MLEcens_0.1-5   
+ [5] Icens_1.66.0     perm_1.0-0.2     survRM2_1.0-4    BuyseTest_2.3.12
+ [9] Rcpp_1.0.8.3     survival_3.2-13 
+
+loaded via a namespace (and not attached):
+ [1] pillar_1.8.1       compiler_4.1.2     tools_4.1.2        digest_0.6.29     
+ [5] lifecycle_1.0.3    tibble_3.1.8       gtable_0.3.1       lattice_0.20-45   
+ [9] pkgconfig_2.0.3    rlang_1.0.6        Matrix_1.3-4       cli_3.4.1         
+[13] parallel_4.1.2     SparseM_1.81       prodlim_2019.11.13 dplyr_1.0.10      
+[17] MatrixModels_0.5-0 generics_0.1.3     vctrs_0.4.2        globals_0.16.1    
+[21] stats4_4.1.2       grid_4.1.2         tidyselect_1.1.2   glue_1.6.2        
+[25] data.table_1.14.2  listenv_0.8.0      R6_2.5.1           future.apply_1.9.1
+[29] fansi_1.0.3        parallelly_1.32.1  lava_1.6.10        ggplot2_3.3.6     
+[33] purrr_0.3.5        magrittr_2.0.3     MASS_7.3-54        scales_1.2.1      
+[37] codetools_0.2-18   splines_4.1.2      future_1.28.0      colorspace_2.0-3  
+[41] utf8_1.2.2         munsell_0.5.0     
+> 
+> 
+> 	
+> 
+> proc.time()
+    user   system  elapsed 
+8993.115   23.979 9084.460 
