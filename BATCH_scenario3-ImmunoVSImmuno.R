@@ -30,7 +30,7 @@
 rm(list = ls())
 gc()
 
-## * Seed
+## * Argument
 args <- commandArgs(TRUE) ## BATCH MODE
 if(length(args)>0){
     for (arg in args){
@@ -43,13 +43,6 @@ if(length(args)>0){
 if(is.na(iter_sim)){iter_sim <- 1}
 if(is.na(n.iter_sim)){n.iter_sim <- 10}
 cat("iteration ",iter_sim," over ",n.iter_sim,"\n",sep="")
-
-set.seed(1)
-seqSeed <- sample(1:max(1e5,n.iter_sim),size=n.iter_sim,replace=FALSE)
-iSeed <- seqSeed[iter_sim]
-set.seed(iSeed)
-
-cat("seed: ",iSeed,"\n")
 
 ## * Prepare export
 path <- "."
@@ -107,14 +100,22 @@ grid <- rbind(grid,
                     threshold = Threshold_list,
                     scenario = 4))
 
+## * Seed
+cat("iteration ",iter_sim," over ",n.iter_sim,"\n",sep="")
+
+set.seed(1)
+seqSeed <- sample(1:1e5,size=n.iter_sim*n.sim,replace=FALSE)
+## any(duplicated(seqSeed))
+iSeed <- seqSeed[(n.sim*(iter_sim-1)+1):(n.sim*iter_sim)]
 
 
 ## * Loop
 res <- NULL
 for(iSim in 1:n.sim){ ## iSim <- 1
-    cat(iSim,": ")
+    cat(iSim," (seed=",iSeed[iSim],"): ",sep="")
     for (iGrid in 1:NROW(grid)){ ## iGrid <- 1 
         cat("*")
+        set.seed(iSeed[iSim])
 
         iThreshold <- grid$threshold[iGrid]
         iFollowUpTime <- grid$FollowUpTime[iGrid]
@@ -147,7 +148,6 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         n.Treatment <- 200
         n.Control <- 200
         n <- n.Treatment+n.Control
-        group <- c(rep(1, n.Treatment),rep(0, n.Control))
 	       
         ## Tox
         ptoxC <- c(0.3,0.3)
@@ -187,15 +187,15 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         Toxevent2 <- c(Toxevent2.Tr,Toxevent2.Ctr)
 
         Time.Cens <- runif(n,iFollowUpTime-Tps.inclusion,iFollowUpTime) ## varier temps de censure
-        Time <- pmin(Time.Cens,TimeEvent)
-        Event <- Time==TimeEvent
-        Event <- as.numeric(Event)
-        tab <- data.frame(group = group,
-                          Time = Time,
-                          Event = Event,
+        tab <- data.frame(group = c(rep(1, n.Treatment),rep(0, n.Control)),
+                          Time0 = TimeEvent,
+                          Event0 = 1,
+                          Time = pmin(Time.Cens,TimeEvent),
+                          Event = NA,
                           Toxevent1 = Toxevent1,
                           Toxevent2 = Toxevent2)
-        Taux.cens.reel <- 1-mean(Event)
+        tab$Event <- as.numeric(tab$Time==TimeEvent)
+        Taux.cens.reel <- 1 - mean(tab$Event)
         
         ## ** Analysis using LR
         LR <- (survdiff(Surv(time=Time, event=Event) ~ group, data=tab, rho=0))
@@ -206,6 +206,10 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                               method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
         NBPeron.confint <- confint(NBPeron)
 	    
+        ## without censoring
+        NB.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold),
+                                    method.inference = "none", trace = 0)
+
 	## ** Analysis using NBPeron + toxicity
     	NBPeronTox1 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent1, operator = "<0"),
                          method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
@@ -215,8 +219,14 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                          method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
     	NBPeronTox2.confint <- confint(NBPeronTox2)
 
+        ## without censoring
+        NBTox1.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold) + B(Toxevent1, operator = "<0"),
+                                        method.inference = "none", trace = 0)
+        NBTox2.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold) + B(Toxevent2, operator = "<0"),
+                                        method.inference = "none", trace = 0)
+
         ## ** Analysis using RMST
-        RMST <- rmst2(time=Time, status=Event, arm=group, tau = NULL, covariates = NULL, alpha = 0.05)
+        RMST <- rmst2(time=tab$Time, status=tab$Event, arm=tab$group, tau = NULL, covariates = NULL, alpha = 0.05)
         pval.RMSTdif <- RMST[["unadjusted.result"]][1,4]
         pval.RMSTratio <- RMST[["unadjusted.result"]][2,4]
   
@@ -253,43 +263,58 @@ for(iSim in 1:n.sim){ ## iSim <- 1
             RNBPeron48.confint <- confint(RNBPeron48)
         }
   
+        ## without censoring
+        rNB.noCensoring24 <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold, restriction = 24),
+                                       method.inference = "none", trace = 0)
+        rNB.noCensoring36 <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold, restriction = 36),
+                                       method.inference = "none", trace = 0)
+        rNB.noCensoring48 <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold, restriction = 48),
+                                       method.inference = "none", trace = 0)
+
         ## ** créer la table de résultats
         res <- rbind(res,c(iteration = iSim,
+                           seed = iSeed[iSim],
                            FollowUp_time = iFollowUpTime,
                            scenario = iScenario,
                            Threshold = iThreshold,
                            "Taux censure reel" = Taux.cens.reel,
                            ## NBPeron
+                           GS.NBPeron = as.numeric(coef(NB.noCensoring)),
                            estimate.NBPeron = NBPeron.confint[,"estimate"],
                            se.NBPeron = NBPeron.confint[,"se"],
                            lower.NBPeron = NBPeron.confint[,"lower.ci"],
                            upper.NBPeron = NBPeron.confint[,"upper.ci"],
                            pval.NBPeron = NBPeron.confint[,"p.value"],
                            ## NBPeronTox1
+			   GS.NBPeronTox1 = as.numeric(utils::tail(coef(NBTox1.noCensoring),1)),
 			   estimate.NBPeronTox1 = NBPeronTox1.confint[2,"estimate"],
                            se.NBPeronTox1 = NBPeronTox1.confint[2,"se"],
                            lower.NBPeronTox1 = NBPeronTox1.confint[2,"lower.ci"],
                            upper.NBPeronTox1 = NBPeronTox1.confint[2,"upper.ci"],
                            pval.NBPeronTox1 = NBPeronTox1.confint[2,"p.value"],
                            ## NBPeronTox2
-			   estimate.NBPeronTox2 = NBPeronTox2.confint[2,"estimate"],
+			   GS.NBPeronTox2 = as.numeric(utils::tail(coef(NBTox2.noCensoring),1)),
+                           estimate.NBPeronTox2 = NBPeronTox2.confint[2,"estimate"],
                            se.NBPeronTox2 = NBPeronTox2.confint[2,"se"],
                            lower.NBPeronTox2 = NBPeronTox2.confint[2,"lower.ci"],
                            upper.NBPeronTox2 = NBPeronTox2.confint[2,"upper.ci"],
                            pval.NBPeronTox2 = NBPeronTox2.confint[2,"p.value"],
                            ## RNBPeron24
+                           GS.rNBPeron24 = as.numeric(coef(rNB.noCensoring24)),
                            estimate.RNBPeron24 = RNBPeron24.confint[,"estimate"],
                            se.RNBPeron24 = RNBPeron24.confint[,"se"],
                            lower.RNBPeron24 = RNBPeron24.confint[,"lower.ci"],
                            upper.RNBPeron24 = RNBPeron24.confint[,"upper.ci"],
                            pval.RNBPeron24 = RNBPeron24.confint[,"p.value"],
                            ## RNBPeron36
+                           GS.rNBPeron36 = as.numeric(coef(rNB.noCensoring36)),
                            estimate.RNBPeron36 = RNBPeron36.confint[,"estimate"],
                            se.RNBPeron36 = RNBPeron36.confint[,"se"],
                            lower.RNBPeron36 = RNBPeron36.confint[,"lower.ci"],
                            upper.RNBPeron36 = RNBPeron36.confint[,"upper.ci"],
                            pval.RNBPeron36 = RNBPeron36.confint[,"p.value"],
                            ## RNBPeron48
+                           GS.rNBPeron48 = as.numeric(coef(rNB.noCensoring48)),
                            estimate.RNBPeron48 = RNBPeron48.confint[,"estimate"],
                            se.RNBPeron48 = RNBPeron48.confint[,"se"],
                            lower.RNBPeron48 = RNBPeron48.confint[,"lower.ci"],

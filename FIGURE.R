@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: maj  9 2022 (09:53) 
 ## Version: 
-## Last-Updated: sep 23 2022 (16:21) 
+## Last-Updated: nov 18 2022 (11:27) 
 ##           By: Brice Ozenne
-##     Update #: 78
+##     Update #: 81
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -113,6 +113,8 @@ ggBenefit1 <- ggBenefit1 + scale_shape_manual(name="",
 ggBenefit1 <- ggBenefit1 + scale_color_manual(name="",
                                               breaks = dtEstimate.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
                                               values = dtEstimate.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
+
+ggBenefit1 <- ggBenefit1 + geom_hline(data = dtEstimate.sc1[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
 ggBenefit1 <- ggBenefit1 + theme(text = element_text(size=15),
                                  axis.line = element_line(size = 1),
                                  axis.ticks = element_line(size = 1),
@@ -207,6 +209,7 @@ ggBenefit2 <- ggBenefit2 + scale_shape_manual(name="",
 ggBenefit2 <- ggBenefit2 + scale_color_manual(name="",
                                               breaks = dtEstimate.sc2[scenario == 0][!duplicated(estimator),estimator],
                                               values = dtEstimate.sc2[scenario == 0][!duplicated(estimator),as.character(color)])
+ggBenefit2 <- ggBenefit2 + geom_hline(data = dtEstimate.sc2[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
 ggBenefit2 <- ggBenefit2 + theme(text = element_text(size=15),
                                  axis.line = element_line(size = 1),
                                  axis.ticks = element_line(size = 1),
@@ -301,6 +304,7 @@ ggBenefit3 <- ggBenefit3 + scale_shape_manual(name="",
 ggBenefit3 <- ggBenefit3 + scale_color_manual(name="",
                                               breaks = dtEstimate.sc3[scenario == 0][!duplicated(estimator),estimator],
                                               values = dtEstimate.sc3[scenario == 0][!duplicated(estimator),as.character(color)])
+ggBenefit3 <- ggBenefit3 + geom_hline(data = dtEstimate.sc3[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
 ggBenefit3 <- ggBenefit3 + theme(text = element_text(size=15),
                                  axis.line = element_line(size = 1),
                                  axis.ticks = element_line(size = 1),

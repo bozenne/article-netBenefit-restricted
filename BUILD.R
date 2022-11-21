@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: apr  7 2022 (11:10) 
 ## Version: 
-## Last-Updated: sep 23 2022 (13:48) 
+## Last-Updated: nov 21 2022 (14:17) 
 ##           By: Brice Ozenne
-##     Update #: 64
+##     Update #: 70
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -68,6 +68,7 @@ setnames(dt.sc1, new = "threshold", old = "Threshold")
 setnames(dt.sc1, new = "followUp", old = "FollowUp_time")
 
 dt.sc1[,.(estimate.NBPeron,estimate.RNBPeron24)]
+## any(duplicated(dt.sc1[,unique(seed),by=c("iteration","file")]$V1))
 
 dtS.sc1 <- dt.sc1[, .(rep = .N, censure = mean(censure),
                       ## log-rank
@@ -84,28 +85,34 @@ dtS.sc1 <- dt.sc1[, .(rep = .N, censure = mean(censure),
                       ## net benefit
                       power5.nbPeron = mean(pval.NBPeron<=0.05),
                       power1.nbPeron = mean(pval.NBPeron<=0.01),
+                      GS.nbPeron = mean(GS.NBPeron),
                       estimate.nbPeron = mean(estimate.NBPeron),
                       coverage.nbPeron = mean((lower.NBPeron <= mean(estimate.NBPeron))*(mean(upper.NBPeron) <= estimate.NBPeron)),
                       ## net benefit (hierarchical)
                       power5.nbPeronTox1 = mean(pval.NBPeronTox1<=0.05), ## under the null
                       power1.nbPeronTox1 = mean(pval.NBPeronTox1<=0.01),
+                      GS.nbPeronTox1 = mean(GS.NBPeronTox1),
                       estimate.nbPeronTox1 = mean(estimate.NBPeronTox1),
                       coverage.nbPeronTox1 = mean((lower.NBPeronTox1 <= mean(estimate.NBPeronTox1))*(mean(upper.NBPeronTox1) <= estimate.NBPeronTox1)),
                       power5.nbPeronTox2 = mean(pval.NBPeronTox2<=0.05), ## under the alternative
                       power1.nbPeronTox2 = mean(pval.NBPeronTox2<=0.01),
+                      GS.nbPeronTox2 = mean(GS.NBPeronTox2),
                       estimate.nbPeronTox2 = mean(estimate.NBPeronTox2),
                       coverage.nbPeronTox2 = mean((lower.NBPeronTox2 <= mean(estimate.NBPeronTox2))*(mean(upper.NBPeronTox2) <= estimate.NBPeronTox2)),
                       ## restricted net benefit
                       power5.rnbPeron24 = mean(pval.RNBPeron24<=0.05), ## at 24 months
                       power1.rnbPeron24 = mean(pval.RNBPeron24<=0.01),
+                      GS.rnbPeron24 = mean(GS.rNBPeron24),
                       estimate.rnbPeron24 = mean(estimate.RNBPeron24),
                       coverage.nbPeron24 = mean((lower.RNBPeron24 <= mean(estimate.RNBPeron24))*(mean(estimate.RNBPeron24) <= upper.RNBPeron24)),
                       power5.rnbPeron36 = mean(pval.RNBPeron36<=0.05), ## at 36 months
                       power1.rnbPeron36 = mean(pval.RNBPeron36<=0.01),
+                      GS.rnbPeron36 = mean(GS.rNBPeron36),
                       estimate.rnbPeron36 = mean(estimate.RNBPeron36),
                       coverage.nbPeron36 = mean((lower.RNBPeron36 <= mean(estimate.RNBPeron36))*(mean(estimate.RNBPeron36) <= upper.RNBPeron36)),
                       power5.rnbPeron48 = mean(pval.RNBPeron48<=0.05), ## at 48 months
                       power1.rnbPeron48 = mean(pval.RNBPeron48<=0.01),
+                      GS.rnbPeron48 = mean(GS.rNBPeron48),
                       estimate.rnbPeron48 = mean(estimate.RNBPeron48),
                       coverage.nbPeron48 = mean((lower.RNBPeron48 <= mean(estimate.RNBPeron48))*(mean(estimate.RNBPeron48) <= upper.RNBPeron48))
                       ), by = c("scenario","threshold","followUp") ]
@@ -117,6 +124,12 @@ dtS.sc1[dtS.sc1$threshold==0 & dtS.sc1$followUp==1000, ]
 ## 1:         0.9495          0.9512        0.8721        0.1771988
 ##    coverage.nbGehan power.rnbPeron estimate.rnbPeron coverage.nbPeron
 ## 1:            0.953         0.8721         0.1771988            0.953
+
+dtS.sc1[scenario==4, .(threshold,followUp,rep,censure,estimate.nbPeron,estimate.rnbPeron24,estimate.rnbPeron36,estimate.rnbPeron48)]
+
+## dtS.sc1[scenario == 0 & threshold == 0, .(followUp, estimate.nbPeron,estimate.rnbPeron24,estimate.rnbPeron36,estimate.rnbPeron48)]
+## dtS.sc1[scenario == 4 & threshold == 0, .(followUp, estimate.nbPeron,estimate.rnbPeron24,estimate.rnbPeron36,estimate.rnbPeron48)]
+
 
 ## * Scenario 2
 dt.sc2 <- loadRes("Results/scenario2-ChemoVSImmuno", tempo.file = TRUE)
@@ -140,28 +153,35 @@ dtS.sc2 <- dt.sc2[, .(rep = .N, censure = mean(censure),
                       ## net benefit
                       power5.nbPeron = mean(pval.NBPeron<=0.05),
                       power1.nbPeron = mean(pval.NBPeron<=0.01),
+                      GS.nbPeron = mean(GS.NBPeron),
                       estimate.nbPeron = mean(estimate.NBPeron),
                       coverage.nbPeron = mean((lower.NBPeron <= mean(estimate.NBPeron))*(mean(upper.NBPeron) <= estimate.NBPeron)),
                       ## net benefit (hierarchical)
                       power5.nbPeronTox1 = mean(pval.NBPeronTox1<=0.05), ## under the null
                       power1.nbPeronTox1 = mean(pval.NBPeronTox1<=0.01),
+                      GS.nbPeronTox1 = mean(GS.NBPeronTox1),
+                      GS.nbPeronTox1 = mean(GS.NBPeronTox1),
                       estimate.nbPeronTox1 = mean(estimate.NBPeronTox1),
                       coverage.nbPeronTox1 = mean((lower.NBPeronTox1 <= mean(estimate.NBPeronTox1))*(mean(upper.NBPeronTox1) <= estimate.NBPeronTox1)),
                       power5.nbPeronTox2 = mean(pval.NBPeronTox2<=0.05), ## under the alternative
                       power1.nbPeronTox2 = mean(pval.NBPeronTox2<=0.01),
+                      GS.nbPeronTox2 = mean(GS.NBPeronTox2),
                       estimate.nbPeronTox2 = mean(estimate.NBPeronTox2),
                       coverage.nbPeronTox2 = mean((lower.NBPeronTox2 <= mean(estimate.NBPeronTox2))*(mean(upper.NBPeronTox2) <= estimate.NBPeronTox2)),
                       ## restricted net benefit
                       power5.rnbPeron24 = mean(pval.RNBPeron24<=0.05), ## at 24 months
                       power1.rnbPeron24 = mean(pval.RNBPeron24<=0.01),
+                      GS.rnbPeron24 = mean(GS.rNBPeron24),
                       estimate.rnbPeron24 = mean(estimate.RNBPeron24),
                       coverage.nbPeron24 = mean((lower.RNBPeron24 <= mean(estimate.RNBPeron24))*(mean(estimate.RNBPeron24) <= upper.RNBPeron24)),
                       power5.rnbPeron36 = mean(pval.RNBPeron36<=0.05), ## at 36 months
                       power1.rnbPeron36 = mean(pval.RNBPeron36<=0.01),
+                      GS.rnbPeron36 = mean(GS.rNBPeron36),
                       estimate.rnbPeron36 = mean(estimate.RNBPeron36),
                       coverage.nbPeron36 = mean((lower.RNBPeron36 <= mean(estimate.RNBPeron36))*(mean(estimate.RNBPeron36) <= upper.RNBPeron36)),
                       power5.rnbPeron48 = mean(pval.RNBPeron48<=0.05), ## at 48 months
                       power1.rnbPeron48 = mean(pval.RNBPeron48<=0.01),
+                      GS.rnbPeron48 = mean(GS.rNBPeron48),
                       estimate.rnbPeron48 = mean(estimate.RNBPeron48),
                       coverage.nbPeron48 = mean((lower.RNBPeron48 <= mean(estimate.RNBPeron48))*(mean(estimate.RNBPeron48) <= upper.RNBPeron48))
                       ), by = c("scenario","threshold","followUp") ]
@@ -195,28 +215,34 @@ dtS.sc3 <- dt.sc3[, .(rep = .N, censure = mean(censure),
                       ## net benefit
                       power5.nbPeron = mean(pval.NBPeron<=0.05),
                       power1.nbPeron = mean(pval.NBPeron<=0.01),
+                      GS.nbPeron = mean(GS.NBPeron),
                       estimate.nbPeron = mean(estimate.NBPeron),
                       coverage.nbPeron = mean((lower.NBPeron <= mean(estimate.NBPeron))*(mean(upper.NBPeron) <= estimate.NBPeron)),
                       ## net benefit (hierarchical)
                       power5.nbPeronTox1 = mean(pval.NBPeronTox1<=0.05), ## under the null
                       power1.nbPeronTox1 = mean(pval.NBPeronTox1<=0.01),
+                      GS.nbPeronTox1 = mean(GS.NBPeronTox1),
                       estimate.nbPeronTox1 = mean(estimate.NBPeronTox1),
                       coverage.nbPeronTox1 = mean((lower.NBPeronTox1 <= mean(estimate.NBPeronTox1))*(mean(upper.NBPeronTox1) <= estimate.NBPeronTox1)),
                       power5.nbPeronTox2 = mean(pval.NBPeronTox2<=0.05), ## under the alternative
                       power1.nbPeronTox2 = mean(pval.NBPeronTox2<=0.01),
+                      GS.nbPeronTox2 = mean(GS.NBPeronTox2),
                       estimate.nbPeronTox2 = mean(estimate.NBPeronTox2),
                       coverage.nbPeronTox2 = mean((lower.NBPeronTox2 <= mean(estimate.NBPeronTox2))*(mean(upper.NBPeronTox2) <= estimate.NBPeronTox2)),
                       ## restricted net benefit
                       power5.rnbPeron24 = mean(pval.RNBPeron24<=0.05), ## at 24 months
                       power1.rnbPeron24 = mean(pval.RNBPeron24<=0.01),
+                      GS.rnbPeron24 = mean(GS.rNBPeron24),
                       estimate.rnbPeron24 = mean(estimate.RNBPeron24),
                       coverage.nbPeron24 = mean((lower.RNBPeron24 <= mean(estimate.RNBPeron24))*(mean(estimate.RNBPeron24) <= upper.RNBPeron24)),
                       power5.rnbPeron36 = mean(pval.RNBPeron36<=0.05), ## at 36 months
                       power1.rnbPeron36 = mean(pval.RNBPeron36<=0.01),
+                      GS.rnbPeron36 = mean(GS.rNBPeron36),
                       estimate.rnbPeron36 = mean(estimate.RNBPeron36),
                       coverage.nbPeron36 = mean((lower.RNBPeron36 <= mean(estimate.RNBPeron36))*(mean(estimate.RNBPeron36) <= upper.RNBPeron36)),
                       power5.rnbPeron48 = mean(pval.RNBPeron48<=0.05), ## at 48 months
                       power1.rnbPeron48 = mean(pval.RNBPeron48<=0.01),
+                      GS.rnbPeron48 = mean(GS.rNBPeron48),
                       estimate.rnbPeron48 = mean(estimate.RNBPeron48),
                       coverage.nbPeron48 = mean((lower.RNBPeron48 <= mean(estimate.RNBPeron48))*(mean(estimate.RNBPeron48) <= upper.RNBPeron48))
                       ),
