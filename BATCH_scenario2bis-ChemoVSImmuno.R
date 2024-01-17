@@ -2,19 +2,30 @@
 ## ** interactive
 ## path <- "h:/SundKonsolidering_BioStatHome/Cluster/GPC/article-restricted/"
 ## setwd(path)
-## source("BATCH_scenario1-ChemoVSChemo.R")
+## source("BATCH_scenario2bis-ChemoVSImmuno.R")
 ## ** slurm
 ## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
-## sbatch -a 1-1 -J 'scenario1-ChemoVSChemo' --output=/dev/null --error=/dev/null R CMD BATCH --vanilla BATCH_scenario1-ChemoVSChemo.R /dev/null 
+## sbatch -a 1-1 -J 'scenario2bis-ChemoVSImmuno' --output=/dev/null --error=/dev/null R CMD BATCH --vanilla BATCH_scenario2bis-ChemoVSImmuno.R /dev/null 
 ## ** BATCH
 ## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
-## R CMD BATCH --vanilla '--args iter_sim=1 n.iter_sim=10' BATCH_scenario1-ChemoVSChemo.R output/scenario1-ChemoVSChemo/R-ChemoVSChemo-1.Rout &
+## R CMD BATCH --vanilla '--args iter_sim=1 n.iter_sim=10' BATCH_scenario2bis-ChemoVSImmuno.R output/scenario2bis-ChemoVSImmuno/R-ChemoVSImmuno-1.Rout &
 ## ** BATCH loop
 ## cd /projects/biostat01/people/hpl802/GPC/article-restricted/
 ## for ITER in `seq 1 10`;
 ## do
-## eval 'R CMD BATCH --vanilla "--args iter_sim='$ITER' n.iter_sim=10" BATCH_scenario1-ChemoVSChemo.R output/scenario1-ChemoVSChemo/R-ChemoVSChemo-'$ITER'.Rout &'
+## eval 'R CMD BATCH --vanilla "--args iter_sim='$ITER' n.iter_sim=10" BATCH_scenario2bis-ChemoVSImmuno.R output/scenario2bis-ChemoVSImmuno/R-ChemoVSImmuno-'$ITER'.Rout &'
 ## done
+
+## [32] 3353501
+## [33] 3353502
+## [34] 3353503
+## [35] 3353504
+## [36] 3353505
+## [37] 3353506
+## [38] 3353507
+## [39] 3353508
+## [40] 3353509
+## [41] 3353510
 
 rm(list = ls())
 gc()
@@ -34,14 +45,14 @@ if(is.na(n.iter_sim)){n.iter_sim <- 10}
 
 ## * Prepare export
 path <- "."
-path.res <- file.path(path,"Results","scenario1-ChemoVSChemo")
+path.res <- file.path(path,"Results","scenario2bis-ChemoVSImmuno")
 if(dir.exists(path.res)==FALSE){
     if(dir.exists(file.path(path,"Results"))==FALSE){
     dir.create(file.path(path,"Results"))
     }
     dir.create(path.res)
 }
-path.output <- file.path(path,"output","scenario1-ChemoVSChemo")
+path.output <- file.path(path,"output","scenario2bis-ChemoVSImmuno")
 if(dir.exists(path.output)==FALSE){
     if(dir.exists(file.path(path,"output"))==FALSE){
     dir.create(file.path(path,"output"))
@@ -60,34 +71,33 @@ n.sim <- 100
 
 Tps.inclusion <- 12 
 FollowUp.time_list <- c(12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60) ## every 3 months
-Threshold_list <- c(0,6,12,18,24) ## every 6 months
+Threshold_list <- c(0,6,12,18,24) ## 0,6,12
 
-grid <- expand.grid(FollowUpTime = FollowUp.time_list,
+grid <- expand.grid(restrictionTime = FollowUp.time_list,
                     threshold = Threshold_list,
                     scenario = 0)
 
 ## pour faire varier les ratio threshold/restriction time
 grid <- rbind(grid,
-              cbind(FollowUpTime = FollowUp.time_list,
+              cbind(restrictionTime = FollowUp.time_list,
                     threshold = 0.2*FollowUp.time_list,
                     scenario = 3))
+
 grid <- rbind(grid,
-              cbind(FollowUpTime = FollowUp.time_list,
+              cbind(restrictionTime = FollowUp.time_list,
                     threshold = 0.3*FollowUp.time_list,
                     scenario = 5))
 
 grid <- rbind(grid,
-              cbind(FollowUpTime = FollowUp.time_list,
+              cbind(restrictionTime = FollowUp.time_list,
                     threshold = 0.4*FollowUp.time_list,
                     scenario = 6))
 
 ## pour obtenir la valeur exacte du net benefit sans censure
 grid <- rbind(grid,
-              cbind(FollowUpTime = 1000,
+              cbind(restrictionTime = 1000,
                     threshold = Threshold_list,
                     scenario = 4))
-
-## grid <- grid[c(intersect(which(grid$scenario==0), which(grid$FollowUpTime==12)), which(grid$FollowUpTime==1000)),]
 
 ## * Seed
 cat("iteration ",iter_sim," over ",n.iter_sim,"\n",sep="")
@@ -99,50 +109,74 @@ iSeed <- seqSeed[(n.sim*(iter_sim-1)+1):(n.sim*iter_sim)]
 
 ## * Loop
 res <- NULL
-for(iSim in 1:n.sim){ ## iSim <- 1 
+for(iSim in 1:n.sim){ ## iSim <- 1
     cat(iSim," (seed=",iSeed[iSim],"): ",sep="")
     for (iGrid in 1:NROW(grid)){ ## iGrid <- 1
         cat("*")
         set.seed(iSeed[iSim])
 
         iThreshold <- grid$threshold[iGrid]
-        iFollowUpTime <- grid$FollowUpTime[iGrid]
+        iFollowUpTime <- grid$restrictionTime[iGrid]
         iScenario <- grid$scenario[iGrid]
-        
-        ## ** Generate data 
-        HazC <- 0.085
-        HazT <- 0.0595
-        
-        ## Tox
-        ptoxC <- c(0.3,0.3)
-        ptoxT <- c(0.3,0.2)
-        
+
+        ## ** Generate data
+        HazC <- 0.1
+        HazT2 <- HazC*0.95
+        HazT3 <- HazC*0.90
+        HazT4 <- HazC*0.65
+        HazT5 <- HazC*0.1
+        t1 <- 1
+        t2 <- 3
+        t3 <- 9
+        t4 <- 24
         n.Treatment <- 200
         n.Control <- 200
         n <- n.Treatment+n.Control
+      
         TimeEvent.Ctr <- rexp(n.Control,HazC)
-        TimeEvent.Tr <- rexp(n.Control,HazT)
-        
+        TimeEvent.Tr1 <- rexp(n.Control,HazC)
+        TimeEvent.Tr2 <- rexp(n.Control,HazT2)
+        TimeEvent.Tr3 <- rexp(n.Control,HazT3)
+        TimeEvent.Tr4 <- rexp(n.Control,HazT4)
+        TimeEvent.Tr5 <- rexp(n.Control,HazT5)
+      
+        TimeEvent.Tr <- ifelse(TimeEvent.Tr1<t1,TimeEvent.Tr1,
+                        ifelse(t1+TimeEvent.Tr2<t2,t1+TimeEvent.Tr2,
+                        ifelse(t2+TimeEvent.Tr3<t3,t2+TimeEvent.Tr3,
+                        ifelse(t3+TimeEvent.Tr4<t4,t3+TimeEvent.Tr4,
+                               t4+TimeEvent.Tr5))))
+	    
+        ## Tox
+        ptoxC <- c(0.3,0.3)
+        ptoxT <- c(0.3,0.2)
+
         Toxevent1.Ctr <- rbinom(n.Control,1,ptoxC[1])
         Toxevent1.Tr <- rbinom(n.Treatment,1,ptoxT[1])
         Toxevent2.Ctr <- rbinom(n.Control,1,ptoxC[2])
         Toxevent2.Tr <- rbinom(n.Treatment,1,ptoxT[2])
-  
+      
         TimeEvent <- c(TimeEvent.Tr,TimeEvent.Ctr)
+        Toxevent1 <- c(Toxevent1.Tr,Toxevent1.Ctr)
+        Toxevent2 <- c(Toxevent2.Tr,Toxevent2.Ctr)
+	 
+        inclusion.date.Tr <- seq(0,n.Treatment-1,by=1)*2/3*iFollowUpTime/n.Treatment ## calendar date at which each treated patient starts
+        inclusion.date.Ctr <- seq(0,n.Control-1,by=1)*2/3*iFollowUpTime/n.Control ## calendar date at which each control patient starts
+        Time.cens.Tr <- iFollowUpTime-pmax(0,runif(n.Treatment,-2,2)+inclusion.date.Tr)
+        Time.cens.Ctr <- iFollowUpTime-pmax(0,runif(n.Control,-2,2)+inclusion.date.Ctr)
+        Time.cens <- c(Time.cens.Tr,Time.cens.Ctr)
 
-        Time.Cens <- runif(n,iFollowUpTime-Tps.inclusion,iFollowUpTime) #varier temps de censure
         tab <- data.frame(group = c(rep(1, n.Treatment),rep(0, n.Control)),
                           Time0 = TimeEvent,
                           Event0 = 1,
                           Time = pmin(Time.Cens,TimeEvent),
-                          Event = as.numeric(NA),
-                          Toxevent1 = c(Toxevent1.Tr,Toxevent1.Ctr),
-                          Toxevent2 = c(Toxevent2.Tr,Toxevent2.Ctr))
+                          Event = NA,
+                          Toxevent1 = Toxevent1,
+                          Toxevent2 = Toxevent2)
         tab$Event <- as.numeric(tab$Time==TimeEvent)
-        Taux.cens.reel <- 1-mean(tab$Event)
+        Taux.cens.reel <- 1 - mean(tab$Event)
   
         ## ** Analysis using LR
-        LR <- (survdiff(Surv(time=Time, event=Event) ~ group, data=tab,rho=0))
+        LR <- (survdiff(Surv(time=Time, event=Event) ~ group, data=tab, rho=0))
         pval.LR <- 1 - pchisq(LR$chisq, 1) 
   
         ## ** Analysis using NBPeron
@@ -153,16 +187,16 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         ## without censoring
         NB.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold),
                                     method.inference = "none", trace = 0)
-        
-        ## ** Analysis using NBPeron + toxicity
-        NBPeronTox1 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent1, operator = "<0"),
-                              method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
-        NBPeronTox1.confint <- confint(NBPeronTox1)
-        
-        NBPeronTox2 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent2, operator = "<0"),
-                              method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
-        NBPeronTox2.confint <- confint(NBPeronTox2)
-        
+	    
+       ## ** Analysis using NBPeron + toxicity
+    	NBPeronTox1 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent1, operator = "<0"),
+                         method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
+   	NBPeronTox1.confint <- confint(NBPeronTox1)
+
+    	NBPeronTox2 <- BuyseTest(data=tab,group ~ TTE(Time, status=Event, iThreshold) + B(Toxevent2, operator = "<0"),
+                         method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
+   	NBPeronTox2.confint <- confint(NBPeronTox2)
+
         ## without censoring
         NBTox1.noCensoring <- BuyseTest(data=tab,group ~ TTE(Time0, status=Event0, iThreshold) + B(Toxevent1, operator = "<0"),
                                         method.inference = "none", trace = 0)
@@ -170,7 +204,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                                         method.inference = "none", trace = 0)
 
         ## ** Analysis using RMST
-        RMST <- rmst2(time=tab$Time, status=tab$Event, arm=tab$group, tau = NULL, covariates = NULL, alpha = 0.05)
+        RMST <- rmst2(time=tab$Time, status=tab$Event, arm= tab$group, tau = NULL, covariates = NULL, alpha = 0.05)
         pval.RMSTdif <- RMST[["unadjusted.result"]][1,4]
         pval.RMSTratio <- RMST[["unadjusted.result"]][2,4]
   
@@ -181,7 +215,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         }else{
             pval.WLR <- WLR$pvalue
         }
-        
+
         ## ** Analysis using RNBPeron
         if(iFollowUpTime<=24){
             RNBPeron24.confint <- NBPeron.confint
@@ -198,7 +232,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                                     method.inference = "u-statistic", scoring.rule = "Peron", trace = 0)
             RNBPeron36.confint <- confint(RNBPeron36)
         }
-  
+
         if(iFollowUpTime<=48){
             RNBPeron48.confint <- NBPeron.confint
         }else{
@@ -231,7 +265,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                            pval.NBPeron = NBPeron.confint[,"p.value"],
                            ## NBPeronTox1
                            GS.NBPeronTox1 = as.numeric(utils::tail(coef(NBTox1.noCensoring),1)),
-                           estimate.NBPeronTox1 = NBPeronTox1.confint[2,"estimate"],
+			   estimate.NBPeronTox1 = NBPeronTox1.confint[2,"estimate"],
                            se.NBPeronTox1 = NBPeronTox1.confint[2,"se"],
                            lower.NBPeronTox1 = NBPeronTox1.confint[2,"lower.ci"],
                            upper.NBPeronTox1 = NBPeronTox1.confint[2,"upper.ci"],
@@ -250,41 +284,36 @@ for(iSim in 1:n.sim){ ## iSim <- 1
                            lower.RNBPeron24 = RNBPeron24.confint[,"lower.ci"],
                            upper.RNBPeron24 = RNBPeron24.confint[,"upper.ci"],
                            pval.RNBPeron24 = RNBPeron24.confint[,"p.value"],
-                           ## RNBPeron36
+                           ## RNBPero36
                            GS.rNBPeron36 = as.numeric(coef(rNB.noCensoring36)),
                            estimate.RNBPeron36 = RNBPeron36.confint[,"estimate"],
                            se.RNBPeron36 = RNBPeron36.confint[,"se"],
                            lower.RNBPeron36 = RNBPeron36.confint[,"lower.ci"],
                            upper.RNBPeron36 = RNBPeron36.confint[,"upper.ci"],
                            pval.RNBPeron36 = RNBPeron36.confint[,"p.value"],
-                           ## RNBPeron48
+                           ## RNBPero48
                            GS.rNBPeron48 = as.numeric(coef(rNB.noCensoring48)),
                            estimate.RNBPeron48 = RNBPeron48.confint[,"estimate"],
                            se.RNBPeron48 = RNBPeron48.confint[,"se"],
                            lower.RNBPeron48 = RNBPeron48.confint[,"lower.ci"],
                            upper.RNBPeron48 = RNBPeron48.confint[,"upper.ci"],
                            pval.RNBPeron48 = RNBPeron48.confint[,"p.value"],
-                           ## other
+                           ## others
                            pval.LOGRANK = pval.LR,
                            pval.WeightedLOGRANK = pval.WLR,
                            pval.RMSTdif = pval.RMSTdif,
                            pval.RMSTratio = pval.RMSTratio))
 
     }
-    saveRDS(res, file = file.path(path.res,paste0("simul_ChemoVSChemo_",iter_sim,"(tempo).rds")))
+    saveRDS(res, file = file.path(path.res,paste0("simul_ChemoVSImmuno_",iter_sim,"(tempo).rds")))
     cat("\n")
 }
 
 ## * Export
-saveRDS(res, file = file.path(path.res,paste0("simul_ChemoVSChemo_",iter_sim,".rds")))
+saveRDS(res, file = file.path(path.res,paste0("simul_ChemoVSImmuno_",iter_sim,".rds")))
 
 ## * R version
 print(sessionInfo())
 
 
-if(FALSE){
-
-    dt.res <- as.data.table(res)
-    dt.res[iteration==1,.(FollowUp_time,Threshold,GS.NBPeron,estimate.NBPeron,GS.NBPeronTox1,estimate.NBPeronTox1)]
-
-}
+	

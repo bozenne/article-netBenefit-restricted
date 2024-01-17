@@ -151,7 +151,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
 	       
         ## Tox
         ptoxC <- c(0.3,0.3)
-        ptoxT <- c(0.3,0.1)
+        ptoxT <- c(0.3,0.2)
         Toxevent1.Ctr <- rbinom(n.Control,1,ptoxC[1])
         Toxevent1.Tr <- rbinom(n.Treatment,1,ptoxT[1])
         Toxevent2.Ctr <- rbinom(n.Control,1,ptoxC[2])
