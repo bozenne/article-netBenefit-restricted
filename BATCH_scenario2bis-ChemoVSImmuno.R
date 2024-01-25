@@ -168,7 +168,7 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         tab <- data.frame(group = c(rep(1, n.Treatment),rep(0, n.Control)),
                           Time0 = TimeEvent,
                           Event0 = 1,
-                          Time = pmin(Time.Cens,TimeEvent),
+                          Time = pmin(Time.cens,TimeEvent),
                           Event = NA,
                           Toxevent1 = Toxevent1,
                           Toxevent2 = Toxevent2)

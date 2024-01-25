@@ -14,7 +14,7 @@ R CMD BATCH --vanilla BATCH_scenario2-ChemoVSImmuno.R output/scenario2-ChemoVSIm
 ## clean results      ## rm -r ./Results/scenario2-ChemoVSImmuno/*
 ## submission command ## sbatch SUBM_scenario2-ChemoVSImmuno.slurm
 
-## submission output  ## Submitted batch job 2661754 (time using C-c t: fredag 22-11-18 at 11:31) 
+## submission output  ## Submitted batch job 6195092 (time using C-c t: torsdag 24-01-25 at 19:45) 
 
 ## init               ## module module load gcc/11.2.0 R/4.1.2
                       ## cat .bash_profile (in the root directory on the server to visualize the current configuration)
