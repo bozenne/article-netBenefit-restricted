@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: maj  9 2022 (09:53) 
 ## Version: 
-## Last-Updated: nov 18 2022 (11:27) 
+## Last-Updated: jan 31 2024 (17:44) 
 ##           By: Brice Ozenne
-##     Update #: 81
+##     Update #: 86
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -27,8 +27,10 @@ if(system("whoami",intern=TRUE)=="unicph\\hpl802"){
 ## * Load results
 dtS.sc1 <- readRDS(file = "Results/simSummary-ChemoVSChemo.rds")
 dtS.sc2 <- readRDS(file = "Results/simSummary-ChemoVSImmuno.rds")
+dtS.sc2bis <- readRDS(file = "Results/simSummaryBis-ChemoVSImmuno.rds")
 dtS.sc3 <- readRDS(file = "Results/simSummary-ImmunoVSImmuno.rds")
-dtS.sc4 <- readRDS(file = "Results/simSummary-type1.rds")
+dtS.sc4 <- readRDS(file = "Results/simSummary-Crossing.rds")
+dtS.scType1<- readRDS(file = "Results/simSummary-type1.rds")
 
 relabel.estimator <- c("nbPeron" = "Net benefit",
                        "nbPeronTox1" = "Net benefit \n (equal toxicity)",
@@ -105,7 +107,7 @@ dtPower.sc1[,estimator := factor(estimator, levels = names(relabel.estimator), l
 
 ## petit changement de nom du graphe pour ne pas melanger
 ggBenefit1 <- ggplot(dtEstimate.sc1[scenario == 0], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
-ggBenefit1 <- ggBenefit1 + geom_point(size = 2) + geom_line(size = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggBenefit1 <- ggBenefit1 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
 ggBenefit1 <- ggBenefit1 + xlab("Follow-up time (months)") + ylab("Estimate")
 ggBenefit1 <- ggBenefit1 + scale_shape_manual(name="",
                                               breaks = dtEstimate.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
@@ -116,7 +118,7 @@ ggBenefit1 <- ggBenefit1 + scale_color_manual(name="",
 
 ggBenefit1 <- ggBenefit1 + geom_hline(data = dtEstimate.sc1[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
 ggBenefit1 <- ggBenefit1 + theme(text = element_text(size=15),
-                                 axis.line = element_line(size = 1),
+                                 axis.line = element_line(linewidth = 1),
                                  axis.ticks = element_line(size = 1),
                                  axis.ticks.length=unit(.25, "cm"),
                                  legend.key.width = unit(3,"line"),
@@ -125,7 +127,7 @@ ggBenefit1 <- ggBenefit1 + theme(text = element_text(size=15),
                                  panel.spacing = unit(1, "lines"))
 
 ggBenefit1.bis <- ggplot(dtEstimate.sc1[scenario %in% c(1:3,5:6)], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape=estimator))
-ggBenefit1.bis <- ggBenefit1.bis + geom_point(size = 2) + geom_line(size = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
+ggBenefit1.bis <- ggBenefit1.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
 ggBenefit1.bis <- ggBenefit1.bis + xlab("Follow-up time (months)") + ylab("Estimate") + labs(color = "")
 ggBenefit1.bis <- ggBenefit1.bis + scale_shape_manual(name="",
                                                       breaks = dtEstimate.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
@@ -134,7 +136,7 @@ ggBenefit1.bis <- ggBenefit1.bis + scale_color_manual(name="",
                                                       breaks = dtEstimate.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
                                                       values = dtEstimate.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
 ggBenefit1.bis <- ggBenefit1.bis + theme(text = element_text(size=15),
-                                         axis.line = element_line(size = 1),
+                                         axis.line = element_line(linewidth = 1),
                                          axis.ticks = element_line(size = 1),
                                          axis.ticks.length=unit(.25, "cm"),
                                          legend.key.width = unit(3,"line"),
@@ -144,7 +146,7 @@ ggBenefit1.bis <- ggBenefit1.bis + theme(text = element_text(size=15),
 
 
 ggPower1 <- ggplot(dtPower.sc1[scenario==0], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
-ggPower1 <- ggPower1 + geom_point(size = 2) + geom_line(size = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggPower1 <- ggPower1 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
 ggPower1 <- ggPower1 + xlab("Follow-up time (months)") + ylab(legend.power)
 ggPower1 <- ggPower1 + scale_shape_manual(name="",
                                           breaks = dtPower.sc1[scenario == 0][!duplicated(estimator),estimator],
@@ -153,7 +155,7 @@ ggPower1 <- ggPower1 + scale_color_manual(name="",
                                           breaks = dtPower.sc1[scenario == 0][!duplicated(estimator),estimator],
                                           values = dtPower.sc1[scenario == 0][!duplicated(estimator),as.character(color)])
 ggPower1 <- ggPower1 + theme(text = element_text(size=15),
-                             axis.line = element_line(size = 1),
+                             axis.line = element_line(linewidth = 1),
                              axis.ticks = element_line(size = 1),
                              axis.ticks.length=unit(.25, "cm"),
                              legend.key.width = unit(3,"line"),
@@ -163,7 +165,7 @@ ggPower1 <- ggPower1 + theme(text = element_text(size=15),
 
 
 ggPower1.bis <- ggplot(dtPower.sc1[scenario %in% c(1:3,5:6)], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
-ggPower1.bis <- ggPower1.bis + geom_point(size = 2) + geom_line(size = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
+ggPower1.bis <- ggPower1.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
 ggPower1.bis <- ggPower1.bis + xlab("Follow-up time (months)") + ylab(legend.power)
 ggPower1.bis <- ggPower1.bis + scale_shape_manual(name="",
                                                   breaks = dtPower.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
@@ -172,7 +174,7 @@ ggPower1.bis <- ggPower1.bis + scale_color_manual(name="",
                                                   breaks = dtPower.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
                                                   values = dtPower.sc1[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
 ggPower1.bis <- ggPower1.bis + theme(text = element_text(size=15),
-                                     axis.line = element_line(size = 1),
+                                     axis.line = element_line(linewidth = 1),
                                      axis.ticks = element_line(size = 1),
                                      axis.ticks.length=unit(.25, "cm"),
                                      legend.key.width = unit(3,"line"),
@@ -201,7 +203,7 @@ dtPower.sc2[,estimator := factor(estimator, levels = names(relabel.estimator), l
 
 ## petit changement de nom du graphe pour ne pas melanger
 ggBenefit2 <- ggplot(dtEstimate.sc2[scenario==0], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
-ggBenefit2 <- ggBenefit2 + geom_point(size = 2) + geom_line(size = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggBenefit2 <- ggBenefit2 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
 ggBenefit2 <- ggBenefit2 + xlab("Follow-up time (months)") + ylab("Estimate")
 ggBenefit2 <- ggBenefit2 + scale_shape_manual(name="",
                                               breaks = dtEstimate.sc2[scenario == 0][!duplicated(estimator),estimator],
@@ -211,7 +213,7 @@ ggBenefit2 <- ggBenefit2 + scale_color_manual(name="",
                                               values = dtEstimate.sc2[scenario == 0][!duplicated(estimator),as.character(color)])
 ggBenefit2 <- ggBenefit2 + geom_hline(data = dtEstimate.sc2[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
 ggBenefit2 <- ggBenefit2 + theme(text = element_text(size=15),
-                                 axis.line = element_line(size = 1),
+                                 axis.line = element_line(linewidth = 1),
                                  axis.ticks = element_line(size = 1),
                                  axis.ticks.length=unit(.25, "cm"),
                                  legend.key.width = unit(3,"line"),
@@ -221,7 +223,7 @@ ggBenefit2 <- ggBenefit2 + theme(text = element_text(size=15),
 
 
 ggBenefit2.bis <- ggplot(dtEstimate.sc2[scenario %in% c(1:3,5:6)], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
-ggBenefit2.bis <- ggBenefit2.bis + geom_point(size = 2) + geom_line(size = 1) + facet_wrap(~scenario.f, labeller = label_both)
+ggBenefit2.bis <- ggBenefit2.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both)
 ggBenefit2.bis <- ggBenefit2.bis + xlab("Follow-up time (months)") + ylab("Estimate")
 ggBenefit2.bis <- ggBenefit2.bis + scale_shape_manual(name="",
                                                       breaks = dtEstimate.sc2[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
@@ -230,7 +232,7 @@ ggBenefit2.bis <- ggBenefit2.bis + scale_color_manual(name="",
                                                       breaks = dtEstimate.sc2[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
                                                       values = dtEstimate.sc2[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
 ggBenefit2.bis <- ggBenefit2.bis + theme(text = element_text(size=15),
-                                         axis.line = element_line(size = 1),
+                                         axis.line = element_line(linewidth = 1),
                                          axis.ticks = element_line(size = 1),
                                          axis.ticks.length=unit(.25, "cm"),
                                          legend.key.width = unit(3,"line"),
@@ -239,7 +241,7 @@ ggBenefit2.bis <- ggBenefit2.bis + theme(text = element_text(size=15),
                                          panel.spacing = unit(1, "lines"))
 
 ggPower2 <- ggplot(dtPower.sc2[scenario==0], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
-ggPower2 <- ggPower2 + geom_point(size = 2) + geom_line(size = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggPower2 <- ggPower2 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
 ggPower2 <- ggPower2 + xlab("Follow-up time (months)") + ylab(legend.power)
 ggPower2 <- ggPower2 + scale_shape_manual(name="",
                                           breaks = dtPower.sc2[scenario == 0][!duplicated(estimator),estimator],
@@ -248,7 +250,7 @@ ggPower2 <- ggPower2 + scale_color_manual(name="",
                                           breaks = dtPower.sc2[scenario == 0][!duplicated(estimator),estimator],
                                           values = dtPower.sc2[scenario == 0][!duplicated(estimator),as.character(color)])
 ggPower2 <- ggPower2 + theme(text = element_text(size=15),
-                             axis.line = element_line(size = 1),
+                             axis.line = element_line(linewidth = 1),
                              axis.ticks = element_line(size = 1),
                              axis.ticks.length=unit(.25, "cm"),
                              legend.key.width = unit(3,"line"),
@@ -258,7 +260,7 @@ ggPower2 <- ggPower2 + theme(text = element_text(size=15),
 
 
 ggPower2.bis <- ggplot(dtPower.sc2[scenario %in% c(1:3,5:6)], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
-ggPower2.bis <- ggPower2.bis + geom_point(size = 2) + geom_line(size = 1) + facet_wrap(~scenario.f, labeller = label_both)
+ggPower2.bis <- ggPower2.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both)
 ggPower2.bis <- ggPower2.bis + scale_shape_manual(name="",
                                                   breaks = dtPower.sc2[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
                                                   values = dtPower.sc2[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.numeric(shape)])
@@ -267,13 +269,109 @@ ggPower2.bis <- ggPower2.bis + scale_color_manual(name="",
                                                   values = dtPower.sc2[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
 ggPower2.bis <- ggPower2.bis + xlab("Follow-up time (months)") + ylab(legend.power)
 ggPower2.bis <- ggPower2.bis + theme(text = element_text(size=15),
-                                     axis.line = element_line(size = 1),
+                                     axis.line = element_line(linewidth = 1),
                                      axis.ticks = element_line(size = 1),
                                      axis.ticks.length=unit(.25, "cm"),
                                      legend.key.width = unit(3,"line"),
                                      legend.key.height = unit(2.5,"line"),
                                      legend.position = "bottom",
                                      panel.spacing = unit(1, "lines"))
+
+## ** ChemoVSImmuno (bis)
+dtEstimate.sc2bis <- melt(dtS.sc2bis, id.vars = c("rep","censure","scenario","threshold","followUp"),
+                       measure = patterns("estimate."),
+                       value.name = c("estimate"), variable.name = "estimator")
+dtEstimate.sc2bis[,estimator := gsub("estimate.","",estimator)]
+dtEstimate.sc2bis[,scenario.f := factor(scenario,names(relabel.scenario), relabel.scenario)]
+dtEstimate.sc2bis[,shape := factor(estimator,names(shape.estimator), shape.estimator)]
+dtEstimate.sc2bis[,color := factor(estimator,names(color.estimator), color.estimator)]
+dtEstimate.sc2bis[,estimator := factor(estimator, levels = unique(estimator), labels = relabel.estimator[unique(estimator)])]
+
+dtPower.sc2bis <- melt(dtS.sc2bis, id.vars = c("rep","censure","scenario","threshold","followUp"),
+                 measure = patterns(type.power),
+                 value.name = c("power"), variable.name = "estimator")
+dtPower.sc2bis[,estimator := gsub(type.power,"",estimator)]
+dtPower.sc2bis[,scenario.f := factor(scenario,names(relabel.scenario), relabel.scenario)]
+dtPower.sc2bis[,shape := as.numeric(factor(estimator,names(shape.estimator), shape.estimator))]
+dtPower.sc2bis[,color := factor(estimator,names(color.estimator), color.estimator)]
+dtPower.sc2bis[,estimator := factor(estimator, levels = names(relabel.estimator), labels = relabel.estimator)]
+
+## petit changement de nom du graphe pour ne pas melanger
+ggBenefit2bis <- ggplot(dtEstimate.sc2bis[scenario==0], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
+ggBenefit2bis <- ggBenefit2bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggBenefit2bis <- ggBenefit2bis + xlab("Follow-up time (months)") + ylab("Estimate")
+ggBenefit2bis <- ggBenefit2bis + scale_shape_manual(name="",
+                                              breaks = dtEstimate.sc2bis[scenario == 0][!duplicated(estimator),estimator],
+                                              values = dtEstimate.sc2bis[scenario == 0][!duplicated(estimator),as.numeric(shape)])
+ggBenefit2bis <- ggBenefit2bis + scale_color_manual(name="",
+                                              breaks = dtEstimate.sc2bis[scenario == 0][!duplicated(estimator),estimator],
+                                              values = dtEstimate.sc2bis[scenario == 0][!duplicated(estimator),as.character(color)])
+ggBenefit2bis <- ggBenefit2bis + geom_hline(data = dtEstimate.sc2bis[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
+ggBenefit2bis <- ggBenefit2bis + theme(text = element_text(size=15),
+                                 axis.line = element_line(linewidth = 1),
+                                 axis.ticks = element_line(size = 1),
+                                 axis.ticks.length=unit(.25, "cm"),
+                                 legend.key.width = unit(3,"line"),
+                                 legend.key.height = unit(2.5,"line"),
+                                 legend.position = "bottom",
+                                 panel.spacing = unit(1, "lines"))
+
+
+ggBenefit2bis.bis <- ggplot(dtEstimate.sc2bis[scenario %in% c(1:3,5:6)], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
+ggBenefit2bis.bis <- ggBenefit2bis.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both)
+ggBenefit2bis.bis <- ggBenefit2bis.bis + xlab("Follow-up time (months)") + ylab("Estimate")
+ggBenefit2bis.bis <- ggBenefit2bis.bis + scale_shape_manual(name="",
+                                                      breaks = dtEstimate.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                      values = dtEstimate.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.numeric(shape)])
+ggBenefit2bis.bis <- ggBenefit2bis.bis + scale_color_manual(name="",
+                                                      breaks = dtEstimate.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                      values = dtEstimate.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
+ggBenefit2bis.bis <- ggBenefit2bis.bis + theme(text = element_text(size=15),
+                                         axis.line = element_line(linewidth = 1),
+                                         axis.ticks = element_line(size = 1),
+                                         axis.ticks.length=unit(.25, "cm"),
+                                         legend.key.width = unit(3,"line"),
+                                         legend.key.height = unit(2.5,"line"),
+                                         legend.position = "bottom",
+                                         panel.spacing = unit(1, "lines"))
+
+ggPower2bis <- ggplot(dtPower.sc2bis[scenario==0], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
+ggPower2bis <- ggPower2bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggPower2bis <- ggPower2bis + xlab("Follow-up time (months)") + ylab(legend.power)
+ggPower2bis <- ggPower2bis + scale_shape_manual(name="",
+                                          breaks = dtPower.sc2bis[scenario == 0][!duplicated(estimator),estimator],
+                                          values = dtPower.sc2bis[scenario == 0][!duplicated(estimator),as.numeric(shape)])
+ggPower2bis <- ggPower2bis + scale_color_manual(name="",
+                                          breaks = dtPower.sc2bis[scenario == 0][!duplicated(estimator),estimator],
+                                          values = dtPower.sc2bis[scenario == 0][!duplicated(estimator),as.character(color)])
+ggPower2bis <- ggPower2bis + theme(text = element_text(size=15),
+                             axis.line = element_line(linewidth = 1),
+                             axis.ticks = element_line(size = 1),
+                             axis.ticks.length=unit(.25, "cm"),
+                             legend.key.width = unit(3,"line"),
+                             legend.key.height = unit(2.5,"line"),
+                             legend.position = "bottom",
+                             panel.spacing = unit(1, "lines"))
+
+
+ggPower2bis.bis <- ggplot(dtPower.sc2bis[scenario %in% c(1:3,5:6)], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
+ggPower2bis.bis <- ggPower2bis.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both)
+ggPower2bis.bis <- ggPower2bis.bis + scale_shape_manual(name="",
+                                                  breaks = dtPower.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                  values = dtPower.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.numeric(shape)])
+ggPower2bis.bis <- ggPower2bis.bis + scale_color_manual(name="",
+                                                  breaks = dtPower.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                  values = dtPower.sc2bis[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
+ggPower2bis.bis <- ggPower2bis.bis + xlab("Follow-up time (months)") + ylab(legend.power)
+ggPower2bis.bis <- ggPower2bis.bis + theme(text = element_text(size=15),
+                                     axis.line = element_line(linewidth = 1),
+                                     axis.ticks = element_line(size = 1),
+                                     axis.ticks.length=unit(.25, "cm"),
+                                     legend.key.width = unit(3,"line"),
+                                     legend.key.height = unit(2.5,"line"),
+                                     legend.position = "bottom",
+                                     panel.spacing = unit(1, "lines"))
+
 
 ## ** ImmunoVSImmuno
 dtEstimate.sc3 <- melt(dtS.sc3, id.vars = c("rep","censure","scenario","threshold","followUp"),
@@ -296,7 +394,7 @@ dtPower.sc3[,estimator := factor(estimator, levels = names(relabel.estimator), l
 
 ## petit changement de nom du graphe pour ne pas melanger
 ggBenefit3 <- ggplot(dtEstimate.sc3[scenario==0], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
-ggBenefit3 <- ggBenefit3 + geom_point(size = 2) + geom_line(size = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggBenefit3 <- ggBenefit3 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
 ggBenefit3 <- ggBenefit3 + xlab("Follow-up time (months)") + ylab("Estimate")
 ggBenefit3 <- ggBenefit3 + scale_shape_manual(name="",
                                               breaks = dtEstimate.sc3[scenario == 0][!duplicated(estimator),estimator],
@@ -306,7 +404,7 @@ ggBenefit3 <- ggBenefit3 + scale_color_manual(name="",
                                               values = dtEstimate.sc3[scenario == 0][!duplicated(estimator),as.character(color)])
 ggBenefit3 <- ggBenefit3 + geom_hline(data = dtEstimate.sc3[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
 ggBenefit3 <- ggBenefit3 + theme(text = element_text(size=15),
-                                 axis.line = element_line(size = 1),
+                                 axis.line = element_line(linewidth = 1),
                                  axis.ticks = element_line(size = 1),
                                  axis.ticks.length=unit(.25, "cm"),
                                  legend.key.width = unit(3,"line"),
@@ -315,7 +413,7 @@ ggBenefit3 <- ggBenefit3 + theme(text = element_text(size=15),
                                  panel.spacing = unit(1, "lines"))
 
 ggBenefit3.bis <- ggplot(dtEstimate.sc3[scenario %in% c(1:3,5:6)], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
-ggBenefit3.bis <- ggBenefit3.bis + geom_point(size = 2) + geom_line(size = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
+ggBenefit3.bis <- ggBenefit3.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
 ggBenefit3.bis <- ggBenefit3.bis + xlab("Follow-up time (months)") + ylab("Estimate")
 ggBenefit3.bis <- ggBenefit3.bis + scale_shape_manual(name="",
                                                       breaks = dtEstimate.sc3[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
@@ -324,7 +422,7 @@ ggBenefit3.bis <- ggBenefit3.bis + scale_color_manual(name="",
                                                       breaks = dtEstimate.sc3[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
                                                       values = dtEstimate.sc3[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
 ggBenefit3.bis <- ggBenefit3.bis + theme(text = element_text(size=15),
-                                         axis.line = element_line(size = 1),
+                                         axis.line = element_line(linewidth = 1),
                                          axis.ticks = element_line(size = 1),
                                          axis.ticks.length=unit(.25, "cm"),
                                          legend.key.width = unit(3,"line"),
@@ -333,7 +431,7 @@ ggBenefit3.bis <- ggBenefit3.bis + theme(text = element_text(size=15),
                                          panel.spacing = unit(1, "lines"))
 
 ggPower3 <- ggplot(dtPower.sc3[scenario==0], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
-ggPower3 <- ggPower3 + geom_point(size = 2) + geom_line(size = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggPower3 <- ggPower3 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
 ggPower3 <- ggPower3 + xlab("Follow-up time (months)") + ylab(legend.power)
 ggPower3 <- ggPower3 + scale_shape_manual(name="",
                                           breaks = dtPower.sc3[scenario == 0][!duplicated(estimator),estimator],
@@ -342,7 +440,7 @@ ggPower3 <- ggPower3 + scale_color_manual(name="",
                                           breaks = dtPower.sc3[scenario == 0][!duplicated(estimator),estimator],
                                           values = dtPower.sc3[scenario == 0][!duplicated(estimator),as.character(color)])
 ggPower3 <- ggPower3 + theme(text = element_text(size=15),
-                             axis.line = element_line(size = 1),
+                             axis.line = element_line(linewidth = 1),
                              axis.ticks = element_line(size = 1),
                              axis.ticks.length=unit(.25, "cm"),
                              legend.key.width = unit(3,"line"),
@@ -352,7 +450,7 @@ ggPower3 <- ggPower3 + theme(text = element_text(size=15),
 
 
 ggPower3.bis <- ggplot(dtPower.sc3[scenario %in% c(1:3,5:6)], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
-ggPower3.bis <- ggPower3.bis + geom_point(size = 2) + geom_line(size = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
+ggPower3.bis <- ggPower3.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
 ggPower3.bis <- ggPower3.bis + xlab("Follow-up time (months)") + ylab(legend.power)
 ggPower3.bis <- ggPower3.bis + scale_shape_manual(name="",
                                                   breaks = dtPower.sc3[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
@@ -361,7 +459,7 @@ ggPower3.bis <- ggPower3.bis + scale_color_manual(name="",
                                                   breaks = dtPower.sc3[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
                                                   values = dtPower.sc3[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
 ggPower3.bis <- ggPower3.bis + theme(text = element_text(size=15),
-                                     axis.line = element_line(size = 1),
+                                     axis.line = element_line(linewidth = 1),
                                      axis.ticks = element_line(size = 1),
                                      axis.ticks.length=unit(.25, "cm"),
                                      legend.key.width = unit(3,"line"),
@@ -369,19 +467,113 @@ ggPower3.bis <- ggPower3.bis + theme(text = element_text(size=15),
                                      legend.position = "bottom",
                                      panel.spacing = unit(1, "lines"))
 
-## ** scenario 4
-range(dtS.sc4$power5.logrank)
-range(dtS.sc4$power5.wlogrank)
-range(dtS.sc4$power5.rmstDiff)
-range(dtS.sc4$power5.nbPeron)
-range(dtS.sc4$power5.rnbPeron)
+## ** Cossing
+dtEstimate.sc4 <- melt(dtS.sc4, id.vars = c("rep","censure","scenario","threshold","followUp"),
+                       measure = patterns("estimate."),
+                       value.name = c("estimate"), variable.name = "estimator")
+dtEstimate.sc4[,estimator := gsub("estimate.","",estimator)]
+dtEstimate.sc4[,shape := factor(estimator,names(shape.estimator), shape.estimator)]
+dtEstimate.sc4[,color := factor(estimator,names(color.estimator), color.estimator)]
+dtEstimate.sc4[,scenario.f := factor(scenario,names(relabel.scenario), relabel.scenario)]
+dtEstimate.sc4[,estimator := factor(estimator, levels = unique(estimator), labels = relabel.estimator[unique(estimator)])]
 
-ggType1 <- ggplot(dtS.sc4[scenario==0], aes_string(x = "rtime", y = paste0(type.power,"rnbPeron")))
+dtPower.sc4 <- melt(dtS.sc4, id.vars = c("rep","censure","scenario","threshold","followUp"),
+                 measure = patterns(type.power),
+                 value.name = c("power"), variable.name = "estimator")
+dtPower.sc4[,estimator := gsub(type.power,"",estimator)]
+dtPower.sc4[,shape := as.numeric(factor(estimator,names(shape.estimator), shape.estimator))]
+dtPower.sc4[,color := factor(estimator,names(color.estimator), color.estimator)]
+dtPower.sc4[,scenario.f := factor(scenario,names(relabel.scenario), relabel.scenario)]
+dtPower.sc4[,estimator := factor(estimator, levels = names(relabel.estimator), labels = relabel.estimator)]
+
+## petit changement de nom du graphe pour ne pas melanger
+ggBenefit4 <- ggplot(dtEstimate.sc4[scenario==0], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
+ggBenefit4 <- ggBenefit4 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggBenefit4 <- ggBenefit4 + xlab("Follow-up time (months)") + ylab("Estimate")
+ggBenefit4 <- ggBenefit4 + scale_shape_manual(name="",
+                                              breaks = dtEstimate.sc4[scenario == 0][!duplicated(estimator),estimator],
+                                              values = dtEstimate.sc4[scenario == 0][!duplicated(estimator),as.numeric(shape)])
+ggBenefit4 <- ggBenefit4 + scale_color_manual(name="",
+                                              breaks = dtEstimate.sc4[scenario == 0][!duplicated(estimator),estimator],
+                                              values = dtEstimate.sc4[scenario == 0][!duplicated(estimator),as.character(color)])
+ggBenefit4 <- ggBenefit4 + geom_hline(data = dtEstimate.sc4[scenario == 4][,scenario := 0], aes(yintercept = estimate, color = estimator))
+ggBenefit4 <- ggBenefit4 + theme(text = element_text(size=15),
+                                 axis.line = element_line(linewidth = 1),
+                                 axis.ticks = element_line(size = 1),
+                                 axis.ticks.length=unit(.25, "cm"),
+                                 legend.key.width = unit(3,"line"),
+                                 legend.key.height = unit(2.5,"line"),
+                                 legend.position = "bottom",
+                                 panel.spacing = unit(1, "lines"))
+
+ggBenefit4.bis <- ggplot(dtEstimate.sc4[scenario %in% c(1:3,5:6)], aes(x = followUp, y = estimate, group = estimator, color = estimator, shape = estimator))
+ggBenefit4.bis <- ggBenefit4.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
+ggBenefit4.bis <- ggBenefit4.bis + xlab("Follow-up time (months)") + ylab("Estimate")
+ggBenefit4.bis <- ggBenefit4.bis + scale_shape_manual(name="",
+                                                      breaks = dtEstimate.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                      values = dtEstimate.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.numeric(shape)])
+ggBenefit4.bis <- ggBenefit4.bis + scale_color_manual(name="",
+                                                      breaks = dtEstimate.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                      values = dtEstimate.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
+ggBenefit4.bis <- ggBenefit4.bis + theme(text = element_text(size=15),
+                                         axis.line = element_line(linewidth = 1),
+                                         axis.ticks = element_line(size = 1),
+                                         axis.ticks.length=unit(.25, "cm"),
+                                         legend.key.width = unit(3,"line"),
+                                         legend.key.height = unit(2.5,"line"),
+                                         legend.position = "bottom",
+                                         panel.spacing = unit(1, "lines"))
+
+ggPower4 <- ggplot(dtPower.sc4[scenario==0], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
+ggPower4 <- ggPower4 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_grid(scenario~threshold, labeller = label_both)
+ggPower4 <- ggPower4 + xlab("Follow-up time (months)") + ylab(legend.power)
+ggPower4 <- ggPower4 + scale_shape_manual(name="",
+                                          breaks = dtPower.sc4[scenario == 0][!duplicated(estimator),estimator],
+                                          values = dtPower.sc4[scenario == 0][!duplicated(estimator),as.numeric(shape)])
+ggPower4 <- ggPower4 + scale_color_manual(name="",
+                                          breaks = dtPower.sc4[scenario == 0][!duplicated(estimator),estimator],
+                                          values = dtPower.sc4[scenario == 0][!duplicated(estimator),as.character(color)])
+ggPower4 <- ggPower4 + theme(text = element_text(size=15),
+                             axis.line = element_line(linewidth = 1),
+                             axis.ticks = element_line(size = 1),
+                             axis.ticks.length=unit(.25, "cm"),
+                             legend.key.width = unit(3,"line"),
+                             legend.key.height = unit(2.5,"line"),
+                             legend.position = "bottom",
+                             panel.spacing = unit(1, "lines"))
+
+
+ggPower4.bis <- ggplot(dtPower.sc4[scenario %in% c(1:3,5:6)], aes(x = followUp, y = power, group = estimator, color = estimator, shape = estimator))
+ggPower4.bis <- ggPower4.bis + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~scenario.f, labeller = label_both, nrow = 1)
+ggPower4.bis <- ggPower4.bis + xlab("Follow-up time (months)") + ylab(legend.power)
+ggPower4.bis <- ggPower4.bis + scale_shape_manual(name="",
+                                                  breaks = dtPower.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                  values = dtPower.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.numeric(shape)])
+ggPower4.bis <- ggPower4.bis + scale_color_manual(name="",
+                                                  breaks = dtPower.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),estimator],
+                                                  values = dtPower.sc4[scenario %in% c(1:3,5:6)][!duplicated(estimator),as.character(color)])
+ggPower4.bis <- ggPower4.bis + theme(text = element_text(size=15),
+                                     axis.line = element_line(linewidth = 1),
+                                     axis.ticks = element_line(size = 1),
+                                     axis.ticks.length=unit(.25, "cm"),
+                                     legend.key.width = unit(3,"line"),
+                                     legend.key.height = unit(2.5,"line"),
+                                     legend.position = "bottom",
+                                     panel.spacing = unit(1, "lines"))
+
+## ** type 1 error
+range(dtS.scType1$power5.logrank)
+range(dtS.scType1$power5.wlogrank)
+range(dtS.scType1$power5.rmstDiff)
+range(dtS.scType1$power5.nbPeron)
+range(dtS.scType1$power5.rnbPeron)
+
+ggType1 <- ggplot(dtS.scType1[scenario==0], aes_string(x = "rtime", y = paste0(type.power,"rnbPeron")))
 ggType1 <- ggType1 + geom_abline(slope = 0, intercept = 0.05, color = "red")
-ggType1 <- ggType1 + geom_point(size = 2) + geom_line(size = 1) + facet_wrap(~threshold, labeller = label_both)
+ggType1 <- ggType1 + geom_point(size = 2) + geom_line(linewidth = 1) + facet_wrap(~threshold, labeller = label_both)
 ggType1 <- ggType1 + xlab("Follow-up time (months)") + ylab(legend.type1) + ggtitle("Restricted net benefit (Peron scoring rule)")
 ggType1 <- ggType1 + theme(text = element_text(size=15),
-                           axis.line = element_line(size = 1),
+                           axis.line = element_line(linewidth = 1),
                            axis.ticks = element_line(size = 1),
                            axis.ticks.length=unit(.25, "cm"),
                            panel.spacing = unit(1, "lines"))
@@ -400,11 +592,23 @@ for(iExtension in c("pdf","png")){ ## iExtension <- "pdf"
     ggsave(ggPower2, filename = paste0("Figures/ggPower-ChemoVSImmuno-scenario0.",iExtension), height = 6, width = 12)
     ggsave(ggPower2.bis, filename = paste0("Figures/ggPower-ChemoVSImmuno-scenario123.",iExtension), height = 6, width = 12)
 
+    ggsave(ggBenefit2bis, filename = paste0("Figures/ggBenefit-ChemoVSImmuno-otherCensoring-scenario0.",iExtension), height = 6, width = 12)
+    ggsave(ggBenefit2bis.bis, filename = paste0("Figures/ggBenefit-ChemoVSImmuno-otherCensoring-scenario123.",iExtension), height = 6, width = 12)
+
+    ggsave(ggPower2bis, filename = paste0("Figures/ggPower-ChemoVSImmuno-otherCensoring-scenario0.",iExtension), height = 6, width = 12)
+    ggsave(ggPower2bis.bis, filename = paste0("Figures/ggPower-ChemoVSImmuno-otherCensoring-scenario123.",iExtension), height = 6, width = 12)
+
     ggsave(ggBenefit3, filename = paste0("Figures/ggBenefit-ImmunoVSImmuno-scenario0.",iExtension), height = 6, width = 12)
     ggsave(ggBenefit3.bis, filename = paste0("Figures/ggBenefit-ImmunoVSImmuno-scenario123.",iExtension), height = 6, width = 12)
 
     ggsave(ggPower3, filename = paste0("Figures/ggPower-ImmunoVSImmuno-scenario0.",iExtension), height = 6, width = 12)
     ggsave(ggPower3.bis, filename = paste0("Figures/ggPower-ImmunoVSImmuno-scenario123.",iExtension), height = 6, width = 12)
+
+    ## ggsave(ggBenefit4, filename = paste0("Figures/ggBenefit-Crossing-scenario0.",iExtension), height = 6, width = 12)
+    ## ggsave(ggBenefit4.bis, filename = paste0("Figures/ggBenefit-Crossing-scenario123.",iExtension), height = 6, width = 12)
+
+    ## ggsave(ggPower4, filename = paste0("Figures/ggPower-Crossing-scenario0.",iExtension), height = 6, width = 12)
+    ## ggsave(ggPower4.bis, filename = paste0("Figures/ggPower-Crossing-scenario123.",iExtension), height = 6, width = 12)
 
     ggsave(ggType1, filename = paste0("Figures/ggType1.",iExtension), height = 6, width = 8)
 }
