@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: maj  9 2022 (09:53) 
 ## Version: 
-## Last-Updated: jan 31 2024 (17:44) 
+## Last-Updated: feb  1 2024 (10:17) 
 ##           By: Brice Ozenne
-##     Update #: 86
+##     Update #: 87
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -604,11 +604,11 @@ for(iExtension in c("pdf","png")){ ## iExtension <- "pdf"
     ggsave(ggPower3, filename = paste0("Figures/ggPower-ImmunoVSImmuno-scenario0.",iExtension), height = 6, width = 12)
     ggsave(ggPower3.bis, filename = paste0("Figures/ggPower-ImmunoVSImmuno-scenario123.",iExtension), height = 6, width = 12)
 
-    ## ggsave(ggBenefit4, filename = paste0("Figures/ggBenefit-Crossing-scenario0.",iExtension), height = 6, width = 12)
-    ## ggsave(ggBenefit4.bis, filename = paste0("Figures/ggBenefit-Crossing-scenario123.",iExtension), height = 6, width = 12)
+    ggsave(ggBenefit4, filename = paste0("Figures/ggBenefit-Crossing-scenario0.",iExtension), height = 6, width = 12)
+    ggsave(ggBenefit4.bis, filename = paste0("Figures/ggBenefit-Crossing-scenario123.",iExtension), height = 6, width = 12)
 
-    ## ggsave(ggPower4, filename = paste0("Figures/ggPower-Crossing-scenario0.",iExtension), height = 6, width = 12)
-    ## ggsave(ggPower4.bis, filename = paste0("Figures/ggPower-Crossing-scenario123.",iExtension), height = 6, width = 12)
+    ggsave(ggPower4, filename = paste0("Figures/ggPower-Crossing-scenario0.",iExtension), height = 6, width = 12)
+    ggsave(ggPower4.bis, filename = paste0("Figures/ggPower-Crossing-scenario123.",iExtension), height = 6, width = 12)
 
     ggsave(ggType1, filename = paste0("Figures/ggType1.",iExtension), height = 6, width = 8)
 }
