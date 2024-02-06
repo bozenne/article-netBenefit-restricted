@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: maj  9 2022 (09:53) 
 ## Version: 
-## Last-Updated: feb  1 2024 (10:17) 
+## Last-Updated: feb  6 2024 (13:28) 
 ##           By: Brice Ozenne
-##     Update #: 87
+##     Update #: 89
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -467,7 +467,7 @@ ggPower3.bis <- ggPower3.bis + theme(text = element_text(size=15),
                                      legend.position = "bottom",
                                      panel.spacing = unit(1, "lines"))
 
-## ** Cossing
+## ** Crossing
 dtEstimate.sc4 <- melt(dtS.sc4, id.vars = c("rep","censure","scenario","threshold","followUp"),
                        measure = patterns("estimate."),
                        value.name = c("estimate"), variable.name = "estimator")

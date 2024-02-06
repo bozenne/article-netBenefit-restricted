@@ -3,9 +3,9 @@
 ## Author: Brice Ozenne
 ## Created: apr  7 2022 (11:10) 
 ## Version: 
-## Last-Updated: jan 31 2024 (17:27) 
+## Last-Updated: feb  6 2024 (13:29) 
 ##           By: Brice Ozenne
-##     Update #: 73
+##     Update #: 75
 ##----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -193,7 +193,7 @@ setnames(dt.sc4, new = "threshold", old = "Threshold")
 setnames(dt.sc4, new = "followUp", old = "FollowUp_time")
 
 dtS.sc4 <- processRes(dt.sc4)
-
+dtS.sc4$extra <- 1
 dtS.sc4[dtS.sc4$threshold==0 & dtS.sc4$followUp==1000, ]
 ##    scenario threshold rtime   rep    censure power.logrank power.wlogrank
 ## 1:        4         0  1000 10000 0.00020325          0.94      0.8674699
