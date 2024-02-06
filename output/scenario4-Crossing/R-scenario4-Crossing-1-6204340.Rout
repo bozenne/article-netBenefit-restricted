@@ -64,8 +64,6 @@ Vcells 451693  3.5    8388608 64.0  1819300 13.9
 + } ## interactive
 > if(is.na(iter_sim)){iter_sim <- 1}
 > if(is.na(n.iter_sim)){n.iter_sim <- 10}
-> cat("iteration ",iter_sim," over ",n.iter_sim,"\n",sep="")
-iteration 1 over 100
 > 
 > ## * Prepare export
 > path <- "."
@@ -155,7 +153,7 @@ iteration 1 over 100
 +         n.Control <- 200
 +         n <- n.Treatment+n.Control
 + 
-+       	HR1C <- 0.05
++       	HR1C <- 0.15
 +         HR1T <- 0.2
 + 
 +         HazC <- 0.10
@@ -474,7 +472,7 @@ iteration 1 over 100
 > print(sessionInfo())
 R version 4.1.2 (2021-11-01)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Red Hat Enterprise Linux 8.8 (Ootpa)
+Running under: Red Hat Enterprise Linux 8.9 (Ootpa)
 
 Matrix products: default
 BLAS:   /maps/direct/software/R/4.1.2/lib64/R/lib/libRblas.so
@@ -514,4 +512,4 @@ loaded via a namespace (and not attached):
 > 
 > proc.time()
     user   system  elapsed 
-7733.440   17.855 7883.269 
+7627.019   34.022 7811.669 
