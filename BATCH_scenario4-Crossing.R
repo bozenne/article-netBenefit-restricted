@@ -131,15 +131,15 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         HazC <- 0.10
         HazT <- 0.18
 
-        HazT2T <- HazT*0.6
+        HazT2T <- HazT*0.5
         HazT3T <- HazT*0.3
         HazT4T <- HazT*0.08
         HazT5T <- HazT*0.02
 
-        HazT2C <- HazC*0.8
-        HazT3C <- HazC*0.5
-        HazT4C <- HazC*0.5
-        HazT5C <- HazC*0.3
+        HazT2C <- HazC*1.1
+        HazT3C <- HazC*0.9
+        HazT4C <- HazC*0.9
+        HazT5C <- HazC*0.5
 
         t1 <- 3
         t2 <- 6
