@@ -125,9 +125,6 @@ for(iSim in 1:n.sim){ ## iSim <- 1
         n.Control <- 200
         n <- n.Treatment+n.Control
 
-      	HR1C <- 0.15
-        HR1T <- 0.2
-
         HazC <- 0.10
         HazT <- 0.18
 

@@ -14,7 +14,7 @@ R CMD BATCH --vanilla BATCH_scenario4-Crossing.R output/scenario4-Crossing/R-$SL
 ## clean results      ## rm -r ./Results/scenario4-Crossing/*
 ## submission command ## sbatch SUBM_scenario4-Crossing.slurm
 
-## submission output  ## Submitted batch job 6204339 (time using C-c t: mandag 24-02-05 at 09:56) 
+## submission output  ## Submitted batch job 6206797 (time using C-c t: onsdag 24-02-07 at 16:40) 
 
 ## init               ## module module load gcc/11.2.0 R/4.1.2
                       ## cat .bash_profile (in the root directory on the server to visualize the current configuration)
